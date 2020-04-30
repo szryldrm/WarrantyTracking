@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace WarrantyTracking.Entities
 {
     public class Detail
     {
-        public String serial_number { get; set; }
-        public Double price { get; set; }
-        public String battery_type { get; set; }
-        public String ampere { get; set; }
-        public String brand { get; set; }
-        public String description { get; set; }
-        public DateTime date { get; set; }
-        public Boolean is_active { get; set; }
-        public String car_brand { get; set; }
-        public String car_model { get; set; }
-        public String customer_name { get; set; }
-        public String[] battery_property { get; set; }
+        public String SerialNumber { get; set; }
+        public Double Price { get; set; }
+        public String BatteryType { get; set; }
+        public String Ampere { get; set; }
+        public String Brand { get; set; }
+        public String Description { get; set; }
+        public DateTime Date { get; set; }
+        public Boolean isActive { get; set; }
+        public String CarBrand { get; set; }
+        public String CarModel { get; set; }
+        public String CustomerName { get; set; }
+        public String[] BatteryProperty { get; set; }
     }
 }
