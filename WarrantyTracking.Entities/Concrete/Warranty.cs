@@ -4,7 +4,7 @@ using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace WarrantyTracking.Entities
+namespace WarrantyTracking.Entities.Concrete
 {
     public class Warranty
     {
