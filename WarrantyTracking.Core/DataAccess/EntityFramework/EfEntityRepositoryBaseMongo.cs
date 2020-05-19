@@ -9,7 +9,7 @@ using WarrantyTracking.Core.Settings;
 namespace WarrantyTracking.Core.DataAccess.EntityFramework
 {
     public class EfEntityRepositoryBaseMongo<TEntity> : IEntityRepositoryMongo<TEntity>
-        where TEntity : class, IEntityMongo, new()
+        where TEntity : class, IDocument, new()
     {
         
         private readonly IMongoCollection<TEntity> _collection;
@@ -28,11 +28,11 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
                 .FirstOrDefault())?.CollectionName;
         }
         
-        public async Task Add(TEntity entity)
+        public void Add(TEntity entity)
         {
             try
             {
-                await _collection.InsertOneAsync(entity);
+                _collection.InsertOne(entity);
             }
             catch
             {
@@ -40,11 +40,11 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
             }
         }
 
-        public async Task Update(TEntity entity)
+        public void Update(TEntity entity)
         {
             try  
             {  
-                await _collection.ReplaceOneAsync(filter: g => g._id == entity._id, replacement: entity);  
+                _collection.ReplaceOne(filter: g => g._id == entity._id, replacement: entity);  
             }  
             catch  
             {  
@@ -52,12 +52,12 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
             }  
         }
 
-        public async Task Delete(string id)
+        public void Delete(string id)
         {
             try  
             {  
                 FilterDefinition<TEntity> data = Builders<TEntity>.Filter.Eq("Id", id);  
-                await _collection.DeleteOneAsync(data);  
+                _collection.DeleteOne(data);  
             }  
             catch  
             {  
@@ -65,11 +65,11 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
             } 
         }
 
-        public async Task<TEntity> Get(FilterDefinition<TEntity> filter)
+        public TEntity Get(FilterDefinition<TEntity> filter)
         {
             try  
             {
-                return await _collection.Find(filter).FirstOrDefaultAsync();  
+                return _collection.Find(filter).FirstOrDefault();  
             }  
             catch  
             {  
@@ -77,18 +77,16 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
             }  
         }
 
-        public async Task<IEnumerable<TEntity>> GetList(FilterDefinition<TEntity> filter=null)
+        public List<TEntity> GetList(FilterDefinition<TEntity> filter=null)
         {
-            try  
-            {  
+            try
+            {
                 if (filter == null)
                 {
-                    return await _collection.Find<TEntity>(_ => true).ToListAsync<TEntity>();
+                    return _collection.Find<TEntity>(_ => true).ToList<TEntity>();
                 }
-                else
-                {
-                    return await _collection.Find<TEntity>(filter).ToListAsync<TEntity>();
-                } 
+
+                return _collection.Find<TEntity>(filter).ToList<TEntity>();
             }  
             catch  
             {  

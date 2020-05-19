@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MongoDB.Bson.Serialization.Attributes;
+using System;
 using WarrantyTracking.Core.Entities;
 
 namespace WarrantyTracking.Entities.Concrete
@@ -14,8 +11,8 @@ namespace WarrantyTracking.Entities.Concrete
         public String Ampere { get; set; }
         public String Brand { get; set; }
         public String Description { get; set; }
-        public DateTime Date { get; set; }
-        public Boolean isActive { get; set; }
+        public String Date { get; set; }
+        public Boolean IsActive { get; set; }
         public String CarBrand { get; set; }
         public String CarModel { get; set; }
         public String CustomerName { get; set; }

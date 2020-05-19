@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace WarrantyTracking.Core.Entities
 {
-    public interface IEntityMongo
+    public interface IDocument
     {
         [BsonId]
         [BsonRepresentation(BsonType.String)]
