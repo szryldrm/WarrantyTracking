@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using MongoDB.Bson.Serialization.Attributes;
+using WarrantyTracking.Core.Entities;
 
 namespace WarrantyTracking.Entities.Concrete
 {
-    public class Detail
+    public class Detail:IEntity
     {
         public String SerialNumber { get; set; }
         public Double Price { get; set; }

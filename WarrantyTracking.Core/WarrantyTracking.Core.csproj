@@ -6,11 +6,8 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
+      <PackageReference Include="MongoDB.Bson" Version="2.10.3" />
       <PackageReference Include="MongoDB.Driver" Version="2.10.3" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\WarrantyTracking.DataAccess\WarrantyTracking.DataAccess.csproj" />
     </ItemGroup>
 
 </Project>

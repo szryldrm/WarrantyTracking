@@ -1,47 +1,99 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 using WarrantyTracking.Core.Entities;
-using WarrantyTracking.DataAccess.Concrete.EntityFramework.Contexts;
-using WarrantyTracking.Entities.Concrete;
+using WarrantyTracking.Core.Settings;
 
 namespace WarrantyTracking.Core.DataAccess.EntityFramework
 {
     public class EfEntityRepositoryBaseMongo<TEntity> : IEntityRepositoryMongo<TEntity>
-        where TEntity : class, IEntity, new()
+        where TEntity : class, IEntityMongo, new()
     {
-        private WarrantyTrackingMongoContext context = new WarrantyTrackingMongoContext();
-        public async Task Add(Warranty entity)
+        
+        private readonly IMongoCollection<TEntity> _collection;
+
+        public EfEntityRepositoryBaseMongo(IMongoDbSettings settings)
+        {
+            var database = new MongoClient(settings.ConnectionString).GetDatabase(settings.DatabaseName);
+            _collection = database.GetCollection<TEntity>(GetCollectionName(typeof(TEntity)));
+        }
+        
+        private string GetCollectionName(Type documentType)
+        {
+            return ((BsonCollectionAttribute) documentType.GetCustomAttributes(
+                    typeof(BsonCollectionAttribute),
+                    true)
+                .FirstOrDefault())?.CollectionName;
+        }
+        
+        public async Task Add(TEntity entity)
         {
             try
             {
-                await context.Warranty.InsertOneAsync(entity);
+                await _collection.InsertOneAsync(entity);
             }
-            catch (Exception e)
+            catch
             {
-                Console.WriteLine(e);
                 throw;
             }
         }
 
-        public Task Update(TEntity entity)
+        public async Task Update(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            try  
+            {  
+                await _collection.ReplaceOneAsync(filter: g => g._id == entity._id, replacement: entity);  
+            }  
+            catch  
+            {  
+                throw;  
+            }  
         }
 
-        public Task Delete(string id)
+        public async Task Delete(string id)
         {
-            throw new System.NotImplementedException();
+            try  
+            {  
+                FilterDefinition<TEntity> data = Builders<TEntity>.Filter.Eq("Id", id);  
+                await _collection.DeleteOneAsync(data);  
+            }  
+            catch  
+            {  
+                throw;  
+            } 
         }
 
-        public Task<TEntity> Get(string id)
+        public async Task<TEntity> Get(FilterDefinition<TEntity> filter)
         {
-            throw new System.NotImplementedException();
+            try  
+            {
+                return await _collection.Find(filter).FirstOrDefaultAsync();  
+            }  
+            catch  
+            {  
+                throw;  
+            }  
         }
 
-        public Task<IEnumerable<TEntity>> GetList()
+        public async Task<IEnumerable<TEntity>> GetList(FilterDefinition<TEntity> filter=null)
         {
-            throw new System.NotImplementedException();
+            try  
+            {  
+                if (filter == null)
+                {
+                    return await _collection.Find<TEntity>(_ => true).ToListAsync<TEntity>();
+                }
+                else
+                {
+                    return await _collection.Find<TEntity>(filter).ToListAsync<TEntity>();
+                } 
+            }  
+            catch  
+            {  
+                throw;  
+            }  
         }
     }
 }
