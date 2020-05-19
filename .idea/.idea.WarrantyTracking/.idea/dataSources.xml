@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="WarrantyTracking_db" uuid="5e00ac40-b0ad-44be-b8f4-cd0929de0e2e">
+      <driver-ref>sqlserver.ms</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+      <jdbc-url>jdbc:sqlserver://78.142.208.131\MSSQLSERVER2016;database=warrantytracking_db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="WarrantyTracking_MongoDB" uuid="84185718-6bce-4c5f-ae7f-ac5218b3e931">
+      <driver-ref>mongo</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
+      <jdbc-url>mongodb+srv://warrantytrackingcluster-y6nii.mongodb.net/WarrantyTracking?retryWrites=true&amp;w=majority</jdbc-url>
+    </data-source>
+  </component>
+</project>
