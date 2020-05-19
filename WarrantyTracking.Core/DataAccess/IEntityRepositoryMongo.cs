@@ -5,12 +5,12 @@ using WarrantyTracking.Core.Entities;
 
 namespace WarrantyTracking.Core.DataAccess
 {
-    public interface IEntityRepositoryMongo<T> where T:class, IEntityMongo, new()
+    public interface IEntityRepositoryMongo<T> where T:class, IDocument, new()
     {
-        Task Add(T entity);  
-        Task Update(T entity);  
-        Task Delete(string id);  
-        Task<T> Get(FilterDefinition<T> filter);  
-        Task<IEnumerable<T>> GetList(FilterDefinition<T> filter=null);
+        void Add(T entity);  
+        void Update(T entity);  
+        void Delete(string id);  
+        T Get(FilterDefinition<T> filter);  
+        List<T> GetList(FilterDefinition<T> filter=null);
     }
 }

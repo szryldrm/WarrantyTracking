@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\WarrantyTracking.Business\WarrantyTracking.Business.csproj" />
       <ProjectReference Include="..\WarrantyTracking.Core\WarrantyTracking.Core.csproj" />
     </ItemGroup>
 

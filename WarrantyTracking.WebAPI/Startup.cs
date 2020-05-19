@@ -9,7 +9,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using WarrantyTracking.Business.Abstract;
+using WarrantyTracking.Business.Concrete;
 using WarrantyTracking.Core.Settings;
+using WarrantyTracking.DataAccess.Abstract;
+using WarrantyTracking.DataAccess.Concrete;
 
 namespace WarrantyTracking.WebAPI
 {
@@ -31,6 +35,10 @@ namespace WarrantyTracking.WebAPI
                 serviceProvider.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
             services.AddControllers();
+            
+            services.AddScoped<IWarrantyService, WarrantyManager>();
+            services.AddScoped<IWarrantyDal, EfWarrantyDal>();
+
 
         }
 
@@ -46,7 +54,7 @@ namespace WarrantyTracking.WebAPI
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context => { await context.Response.WriteAsync("Hello World!"); });
+                endpoints.MapControllers();
             });
         }
     }

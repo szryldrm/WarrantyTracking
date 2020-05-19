@@ -9,14 +9,15 @@ using WarrantyTracking.Core.Settings;
 namespace WarrantyTracking.Entities.Concrete
 {
     [BsonCollection("Warranty")]
-    public class Warranty:IEntityMongo
+    public class Warranty:IDocument
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public ObjectId _id { get; set; }
         public String LicensePlate { get; set; }
+        [BsonElement("Detail")]
         public List<Detail> Details { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
+        public String CreatedDate { get; set; }
+        public String UpdatedDate { get; set; }
     }
 }
