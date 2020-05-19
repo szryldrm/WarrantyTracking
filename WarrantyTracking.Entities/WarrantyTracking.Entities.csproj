@@ -7,7 +7,10 @@
     <ItemGroup>
       <PackageReference Include="MongoDB.Bson" Version="2.10.3" />
       <PackageReference Include="MongoDB.Driver" Version="2.10.3" />
-      <PackageReference Include="MongoDB.Driver.Core" Version="2.10.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\WarrantyTracking.Core\WarrantyTracking.Core.csproj" />
     </ItemGroup>
 
 </Project>
