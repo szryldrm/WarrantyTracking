@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using WarrantyTracking.Core.Entities;
 using WarrantyTracking.Core.Settings;
@@ -30,68 +31,34 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
         
         public void Add(TEntity entity)
         {
-            try
-            {
-                _collection.InsertOne(entity);
-            }
-            catch
-            {
-                throw;
-            }
+            _collection.InsertOne(entity);
         }
 
         public void Update(TEntity entity)
         {
-            try  
-            {  
-                _collection.ReplaceOne(filter: g => g._id == entity._id, replacement: entity);  
-            }  
-            catch  
-            {  
-                throw;  
-            }  
+            _collection.ReplaceOne(filter: g => g._id == entity._id, replacement: entity);
         }
 
         public void Delete(string id)
         {
-            try  
-            {  
-                FilterDefinition<TEntity> data = Builders<TEntity>.Filter.Eq("Id", id);  
-                _collection.DeleteOne(data);  
-            }  
-            catch  
-            {  
-                throw;  
-            } 
+            FilterDefinition<TEntity> data = Builders<TEntity>.Filter.Eq("_id", new ObjectId(id));  
+            _collection.DeleteOne(data);
         }
 
         public TEntity Get(FilterDefinition<TEntity> filter)
         {
-            try  
-            {
-                return _collection.Find(filter).FirstOrDefault();  
-            }  
-            catch  
-            {  
-                throw;  
-            }  
+            return _collection.Find(filter).FirstOrDefault();
         }
 
         public List<TEntity> GetList(FilterDefinition<TEntity> filter=null)
         {
-            try
+            
+            if (filter == null)
             {
-                if (filter == null)
-                {
-                    return _collection.Find<TEntity>(_ => true).ToList<TEntity>();
-                }
+                return _collection.Find<TEntity>(_ => true).ToList<TEntity>();
+            }
 
-                return _collection.Find<TEntity>(filter).ToList<TEntity>();
-            }  
-            catch  
-            {  
-                throw;  
-            }  
+            return _collection.Find<TEntity>(filter).ToList<TEntity>();
         }
     }
 }
