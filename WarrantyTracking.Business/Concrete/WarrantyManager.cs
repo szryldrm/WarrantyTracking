@@ -34,7 +34,7 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                return new SuccessDataResult<Warranty>(_warrantyDal.Get(Builders<Warranty>.Filter.Eq("LicensePlate", licensePlate)));
+                return new SuccessDataResult<Warranty>(_warrantyDal.Get(Builders<Warranty>.Filter.Regex("LicensePlate",new BsonRegularExpression("/^" + licensePlate + "$/i"))));
             }
             catch (Exception e)
             {

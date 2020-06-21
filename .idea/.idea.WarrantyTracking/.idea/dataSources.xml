@@ -7,11 +7,12 @@
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
       <jdbc-url>jdbc:sqlserver://78.142.208.131\MSSQLSERVER2016;database=warrantytracking_db</jdbc-url>
     </data-source>
-    <data-source source="LOCAL" name="WarrantyTracking_MongoDB" uuid="84185718-6bce-4c5f-ae7f-ac5218b3e931">
+    <data-source source="LOCAL" name="MongoDB" uuid="3335a224-acba-4143-835f-c59029fa171a">
       <driver-ref>mongo</driver-ref>
       <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
       <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
-      <jdbc-url>mongodb+srv://warrantytrackingcluster-y6nii.mongodb.net/WarrantyTracking?retryWrites=true&amp;w=majority</jdbc-url>
+      <jdbc-url>mongodb+srv://warrantytracking_user:141188@warrantytrackingcluster-y6nii.mongodb.net/WarrantyTracking?retryWrites=true&amp;w=majority</jdbc-url>
     </data-source>
   </component>
 </project>
