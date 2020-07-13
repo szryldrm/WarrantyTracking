@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using WarrantyTracking.Business.Abstract;
+using WarrantyTracking.Entities.Concrete;
 
 namespace WarrantyTracking.WebAPI.Controllers
 {
@@ -55,6 +56,17 @@ namespace WarrantyTracking.WebAPI.Controllers
         public IActionResult Delete(string id)
         {
             var result = _warrantyService.Delete(id);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
+            return BadRequest(result.Message);
+        }
+        
+        [HttpPost("AddDetail/{id}")]
+        public IActionResult Delete(string id,[FromBody] Detail detail)
+        {
+            var result = _warrantyService.AddDetail(id, detail);
             if (result.Success)
             {
                 return Ok(result.Message);
