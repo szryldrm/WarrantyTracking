@@ -87,6 +87,35 @@ namespace WarrantyTracking.Business.Concrete
             return new SuccessResult("Kayıt Başarıyla Güncellendi.");
         }
 
+        public IResult DeleteDetail(string serialNumber)
+        {
+            try
+            {
+                var filter = Builders<Warranty>.Filter.Eq("Details.SerialNumber", serialNumber);
+
+                if (filter == null)
+                {
+                    return new ErrorResult("Kayıt Bulunamadı!");
+                }
+                
+                var update = Builders<Warranty>.Update.Set("Detail.$[s].IsActive", false);
+                var options = new UpdateOptions
+                {
+                    ArrayFilters = new List<ArrayFilterDefinition>
+                    {
+                        new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("s.SerialNumber",
+                            serialNumber))
+                    }
+                };
+                _warrantyDal.UpdateOne(filter, update, options);
+                return new SuccessResult("Kayıt Başarıyla Silindi.");
+            }
+            catch (Exception e)
+            {
+                return new ErrorResult("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+            }
+        }
+
         public IResult AddDetail(string id, Detail detail)
         {
             try

@@ -73,5 +73,16 @@ namespace WarrantyTracking.WebAPI.Controllers
             }
             return BadRequest(result.Message);
         }
+        
+        [HttpGet("DeleteDetail/{serialNumber}")]
+        public IActionResult DeleteDetail(string serialNumber)
+        {
+            var result = _warrantyService.DeleteDetail(serialNumber);
+            if (result.Success)
+            {
+                return Ok(result.Message);
+            }
+            return BadRequest(result.Message);
+        }
     }
 }
