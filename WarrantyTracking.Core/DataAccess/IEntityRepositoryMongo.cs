@@ -9,7 +9,8 @@ namespace WarrantyTracking.Core.DataAccess
     {
         void Add(T entity);  
         void Update(T entity);  
-        void Delete(string id);  
+        void Delete(string id);
+        void UpdateOne(FilterDefinition<T> filter, UpdateDefinition<T> update);
         T Get(FilterDefinition<T> filter);  
         List<T> GetList(FilterDefinition<T> filter=null);
     }

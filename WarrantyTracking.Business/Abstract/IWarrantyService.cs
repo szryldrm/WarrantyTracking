@@ -13,5 +13,6 @@ namespace WarrantyTracking.Business.Abstract
         IResult Add(Warranty warranty);
         IResult Delete(string id);
         IResult Update(Warranty warranty);
+        IResult AddDetail(string id, Detail detail);
     }
 }

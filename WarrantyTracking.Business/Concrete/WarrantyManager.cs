@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using WarrantyTracking.Business.Abstract;
@@ -84,6 +85,34 @@ namespace WarrantyTracking.Business.Concrete
         {
             _warrantyDal.Update(warranty);
             return new SuccessResult("Kayıt Başarıyla Güncellendi.");
+        }
+
+        public IResult AddDetail(string id, Detail detail)
+        {
+            try
+            {
+                var filter = Builders<Warranty>.Filter.Eq("_id", new ObjectId(id));
+                var warranty = _warrantyDal.Get(filter);
+                
+                if (warranty == null)
+                {
+                    return new ErrorResult("Kayıt Bulunamadı!");
+                }
+
+                if (warranty.Details.Any(sn => sn.SerialNumber == detail.SerialNumber))
+                {
+                    return new ErrorResult("Bu Seri Numarası Zaten Kayıtlı!");
+                }
+                
+                var update = Builders<Warranty>.Update.Push("Detail", detail).Set("UpdatedDate", DateTime.Now.ToShortDateString());
+                _warrantyDal.UpdateOne(filter, update);
+                
+                return new SuccessResult("Detay Başarıyla Eklendi.");
+            }
+            catch (Exception e)
+            {
+                return new ErrorResult("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+            }
         }
     }
 }

@@ -60,5 +60,10 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
 
             return _collection.Find<TEntity>(filter).ToList<TEntity>();
         }
+
+        public void UpdateOne(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update)
+        {
+            _collection.UpdateOne(filter, update);
+        }
     }
 }
