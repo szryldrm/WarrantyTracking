@@ -15,5 +15,6 @@ namespace WarrantyTracking.Business.Abstract
         IResult Update(Warranty warranty);
         IResult AddDetail(string id, Detail detail);
         IResult DeleteDetail(string serialNumber);
+        IDataResult<List<Warranty>> GetLatestList();
     }
 }

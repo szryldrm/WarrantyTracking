@@ -29,6 +29,28 @@ namespace WarrantyTracking.WebAPI.Controllers
             }
             return BadRequest(result.Message);
         }
+
+        [HttpPost("add")]
+        public IActionResult Add(Warranty warranty)
+        {
+            var result = _warrantyService.Add(warranty);
+            if (result.Success)
+            {
+                return Ok(JsonConvert.SerializeObject(result.Message));
+            }
+            return BadRequest(result.Message);
+        }
+        
+        [HttpGet("getlatestlist")]
+        public IActionResult GetLatestList()
+        {
+            var result = _warrantyService.GetLatestList();
+            if (result.Success)
+            {
+                return Ok(JsonConvert.SerializeObject(result.Data));
+            }
+            return BadRequest(result.Message);
+        }
         
         [HttpGet("get")]
         public IActionResult Get(string id)
@@ -41,7 +63,7 @@ namespace WarrantyTracking.WebAPI.Controllers
             return BadRequest(result.Message);
         }
         
-        [HttpGet("getbylicenseplate")]
+        [HttpGet("getbylicenseplate/{plate}")]
         public IActionResult GetByLicensePlate(string plate)
         {
             var result = _warrantyService.GetByLicensePlate(plate);

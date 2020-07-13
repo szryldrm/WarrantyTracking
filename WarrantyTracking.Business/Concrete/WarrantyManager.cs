@@ -54,6 +54,20 @@ namespace WarrantyTracking.Business.Concrete
                 return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
             }
         }
+        public IDataResult<List<Warranty>> GetLatestList()
+        {
+            try
+            {
+                return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).ToList());
+                //To Get Specific Number Of List - Using .Take(10)
+                //return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).Take(5).ToList());
+
+            }
+            catch (Exception e)
+            {
+                return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+            }
+        }
 
         public IResult Add(Warranty warranty)
         {
