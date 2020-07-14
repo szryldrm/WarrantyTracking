@@ -60,7 +60,17 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
 
             return _collection.Find<TEntity>(filter).ToList<TEntity>();
         }
+        
+        public List<TEntity> GetProjectionList(ProjectionDefinition<TEntity> projection, FilterDefinition<TEntity> filter=null)
+        {
+            if (filter == null)
+            {
+                return _collection.Find<TEntity>(_ => true).Project<TEntity>(projection).ToList();
+            }
+            return _collection.Find<TEntity>(filter).Project<TEntity>(projection).ToList();
 
+        }
+        
         public void UpdateOne(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update, UpdateOptions options=null)
         {
             _collection.UpdateOne(filter, update, options);

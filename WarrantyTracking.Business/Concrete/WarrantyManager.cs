@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Internal;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using WarrantyTracking.Business.Abstract;
@@ -54,6 +56,20 @@ namespace WarrantyTracking.Business.Concrete
                 return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
             }
         }
+        
+        // public IDataResult<List<Warranty>> GetActiveList()
+        // {
+        //     try
+        //     {
+        //         var filter = Builders<Warranty>.Filter.Eq("Details.IsActive", "true");
+        //         var projection = Builders<Warranty>.Projection.Include("Details.$");
+        //         return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetProjectionList(projection, filter).ToList());
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+        //     }
+        // }
         public IDataResult<List<Warranty>> GetLatestList()
         {
             try
@@ -105,7 +121,7 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                var filter = Builders<Warranty>.Filter.Eq("Details.SerialNumber", serialNumber);
+                var filter = Builders<Warranty>.Filter.Eq("Detail.SerialNumber", serialNumber);
 
                 if (filter == null)
                 {

@@ -13,5 +13,6 @@ namespace WarrantyTracking.Core.DataAccess
         void UpdateOne(FilterDefinition<T> filter, UpdateDefinition<T> update, UpdateOptions options=null);
         T Get(FilterDefinition<T> filter);  
         List<T> GetList(FilterDefinition<T> filter=null);
+        List<T> GetProjectionList(ProjectionDefinition<T> project, FilterDefinition<T> filter = null);
     }
 }
