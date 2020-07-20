@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WarrantyTracking.DesktopApp.Login;
 
 namespace WarrantyTracking.DesktopApp
 {
@@ -17,7 +18,7 @@ namespace WarrantyTracking.DesktopApp
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new LoginForm());
         }
     }
 }
