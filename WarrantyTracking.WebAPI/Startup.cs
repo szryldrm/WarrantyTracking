@@ -29,6 +29,11 @@ namespace WarrantyTracking.WebAPI
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost:port";
+            });
+
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
 
             services.AddSingleton<IMongoDbSettings>(serviceProvider =>
