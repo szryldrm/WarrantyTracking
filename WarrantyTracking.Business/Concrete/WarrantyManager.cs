@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using WarrantyTracking.Business.Abstract;
 using WarrantyTracking.Core.Utilities.Results;
@@ -15,17 +18,30 @@ namespace WarrantyTracking.Business.Concrete
     public class WarrantyManager:IWarrantyService
     {
         private IWarrantyDal _warrantyDal;
+        private IDistributedCache _distributedCache;
 
-        public WarrantyManager(IWarrantyDal warrantyDal)
+        public WarrantyManager(IWarrantyDal warrantyDal, IDistributedCache distributedCache)
         {
             _warrantyDal = warrantyDal;
+            _distributedCache = distributedCache;
         }
         
         public IDataResult<Warranty> Get(string id)
         {
             try
             {
-                return new SuccessDataResult<Warranty>(_warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id))));
+                string value = _distributedCache.GetString(new ObjectId(id).ToString());
+
+                if (value != null)
+                {
+                    return new SuccessDataResult<Warranty>(value);
+                }
+                else
+                {
+                    Warranty newValue = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
+                    _distributedCache.SetString(new ObjectId(id).ToString(), newValue.ToString());
+                    return new SuccessDataResult<Warranty>(value);
+                }
             }
             catch (Exception e)
             {
