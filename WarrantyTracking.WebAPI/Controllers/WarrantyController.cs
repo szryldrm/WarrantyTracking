@@ -63,7 +63,7 @@ namespace WarrantyTracking.WebAPI.Controllers
             return BadRequest(result.Message);
         }
         
-        [HttpGet("get")]
+        [HttpGet("get/{id}")]
         public IActionResult Get(string id)
         {
             var result = _warrantyService.Get(id);
@@ -97,7 +97,7 @@ namespace WarrantyTracking.WebAPI.Controllers
         }
         
         [HttpPost("AddDetail/{id}")]
-        public IActionResult Delete(string id,[FromBody] Detail detail)
+        public IActionResult AddDetail(string id, [FromBody] Detail detail)
         {
             var result = _warrantyService.AddDetail(id, detail);
             if (result.Success)

@@ -15,7 +15,7 @@ namespace WarrantyTracking.Entities.Concrete
         [BsonRepresentation(BsonType.ObjectId)]
         public ObjectId _id { get; set; }
         public String LicensePlate { get; set; }
-        [BsonElement("Detail")]
+        [BsonElement("Details")]
         public List<Detail> Details { get; set; }
         public String CreatedDate { get; set; }
         public String UpdatedDate { get; set; }

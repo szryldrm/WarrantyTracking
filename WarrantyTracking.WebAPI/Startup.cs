@@ -31,7 +31,7 @@ namespace WarrantyTracking.WebAPI
         {
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = "localhost:port";
+                options.Configuration = "164.90.190.170:8080";
             });
 
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
