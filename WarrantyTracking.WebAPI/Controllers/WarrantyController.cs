@@ -62,7 +62,18 @@ namespace WarrantyTracking.WebAPI.Controllers
             }
             return BadRequest(result.Message);
         }
-        
+
+        [HttpGet("getactive/{id}")]
+        public IActionResult GetActive(string id)
+        {
+            var result = _warrantyService.GetActive(id);
+            if (result.Success)
+            {
+                return Ok(JsonConvert.SerializeObject(result.Data));
+            }
+            return BadRequest(result.Message);
+        }
+
         [HttpGet("get/{id}")]
         public IActionResult Get(string id)
         {
@@ -85,7 +96,7 @@ namespace WarrantyTracking.WebAPI.Controllers
             return BadRequest(result.Message);
         }
         
-        [HttpDelete("Delete")]
+        [HttpDelete("Delete/{id}")]
         public IActionResult Delete(string id)
         {
             var result = _warrantyService.Delete(id);

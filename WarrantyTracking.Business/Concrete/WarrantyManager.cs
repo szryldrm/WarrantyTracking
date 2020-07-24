@@ -16,17 +16,16 @@ using MongoDB.Bson.Serialization;
 
 namespace WarrantyTracking.Business.Concrete
 {
-    public class WarrantyManager:IWarrantyService
+    public class WarrantyManager : IWarrantyService
     {
         private IWarrantyDal _warrantyDal;
         private IDistributedCache _distributedCache;
 
-        public WarrantyManager(IWarrantyDal warrantyDal, IDistributedCache distributedCache)
+        public WarrantyManager(IWarrantyDal warrantyDal)
         {
             _warrantyDal = warrantyDal;
-            _distributedCache = distributedCache;
         }
-        
+
         public IDataResult<Warranty> Get(string id)
         {
             try
@@ -50,7 +49,7 @@ namespace WarrantyTracking.Business.Concrete
                     {
                         return new ErrorDataResult<Warranty>("Id Not Found");
                     }
-                    
+
                 }
             }
             catch (Exception e)
@@ -122,7 +121,32 @@ namespace WarrantyTracking.Business.Concrete
                 return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
             }
         }
-        
+
+        public IDataResult<Warranty> GetActive(string id)
+        {
+            try
+            {
+                var value = _distributedCache.GetString(id + "_active");
+
+                if (value != null)
+                {
+                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value));
+                }
+                else
+                {
+                    Warranty warranty = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
+                    warranty.Details.RemoveAll(d => d.IsActive == false);
+                    _distributedCache.SetString(id + "_active", Newtonsoft.Json.JsonConvert.SerializeObject(warranty));
+                    return new SuccessDataResult<Warranty>(warranty);
+                }
+
+            }
+            catch (Exception e)
+            {
+                return new ErrorDataResult<Warranty>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+            }
+        }
+
         // public IDataResult<List<Warranty>> GetActiveList()
         // {
         //     try
@@ -140,7 +164,7 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).ToList());
+                return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x => x.UpdatedDate).ToList());
                 //To Get Specific Number Of List - Using .Take(10)
                 //return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).Take(5).ToList());
 
@@ -168,8 +192,12 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                _warrantyDal.Delete(id);
-                return new SuccessResult("Kayıt Başarıyla Silindi.");
+                if (_warrantyDal.Delete(id))
+                {
+                    return new SuccessResult("Kayıt Başarıyla Silindi.");
+                }
+                return new ErrorResult("Kayıt Silinemedi!");
+
             }
             catch (Exception e)
             {
@@ -179,8 +207,12 @@ namespace WarrantyTracking.Business.Concrete
 
         public IResult Update(Warranty warranty)
         {
-            _warrantyDal.Update(warranty);
-            return new SuccessResult("Kayıt Başarıyla Güncellendi.");
+            if (_warrantyDal.Update(warranty))
+            {
+                return new SuccessResult("Kayıt Başarıyla Güncellendi.");
+            }
+            return new ErrorResult("Kayıt Güncellenemedi!");
+
         }
 
         public IResult DeleteDetail(string serialNumber)
@@ -190,23 +222,35 @@ namespace WarrantyTracking.Business.Concrete
                 var filter = Builders<Warranty>.Filter.Eq("Details.SerialNumber", serialNumber);
                 var value = _warrantyDal.Get(filter);
 
-                if (value == null)
+                if (value != null)
                 {
-                    return new ErrorResult("Kayıt Bulunamadı!");
-                }
-                
-                var update = Builders<Warranty>.Update.Set("Details.$[s].IsActive", false).Set("UpdatedDate", DateTime.Now.ToShortDateString());
-                var options = new UpdateOptions
-                {
-                    ArrayFilters = new List<ArrayFilterDefinition>
+                    var update = Builders<Warranty>.Update.Set("Details.$[s].IsActive", false).Set("UpdatedDate", DateTime.Now.ToShortDateString());
+                    var options = new UpdateOptions
                     {
-                        new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("s.SerialNumber",
-                            serialNumber))
-                    }
-                };
-                _warrantyDal.UpdateOne(filter, update, options);
+                        ArrayFilters = new List<ArrayFilterDefinition>
+                        {
+                            new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("s.SerialNumber",
+                                serialNumber))
+                        }
+                    };
+                    bool result = _warrantyDal.UpdateOne(filter, update, options);
 
-                return new SuccessResult("Kayıt Başarıyla Silindi.");
+                    if (result)
+                    {
+                        Warranty cacheWarranty = _warrantyDal.Get(filter);
+
+                        _distributedCache.SetString(cacheWarranty._id.ToString(), Newtonsoft.Json.JsonConvert.SerializeObject(cacheWarranty));
+                        _distributedCache.Remove("getlist");
+                        _distributedCache.Remove(cacheWarranty._id.ToString() + "_active");
+                    }
+                    else
+                    {
+                        return new ErrorResult("Kayıt Silinemedi!");
+                    }
+
+                    return new SuccessResult("Kayıt Başarıyla Silindi.");
+                }
+                return new ErrorResult("Kayıt Bulunamadı!");
             }
             catch (Exception e)
             {
@@ -221,25 +265,28 @@ namespace WarrantyTracking.Business.Concrete
                 var filter = Builders<Warranty>.Filter.Eq("_id", new ObjectId(id));
                 var warranty = _warrantyDal.Get(filter);
 
-                if (warranty == null)
+                if (warranty != null)
                 {
-                    return new ErrorResult("Kayıt Bulunamadı!");
+                    if (warranty.Details.Any(sn => sn.SerialNumber == detail.SerialNumber))
+                    {
+                        return new ErrorResult("Bu Seri Numarası Zaten Kayıtlı!");
+                    }
+
+                    var update = Builders<Warranty>.Update.Push("Details", detail).Set("UpdatedDate", DateTime.Now.ToShortDateString());
+
+                    if (_warrantyDal.UpdateOne(filter, update))
+                    {
+                        var cacheWarranty = _warrantyDal.Get(filter);
+                        _distributedCache.SetString(id, Newtonsoft.Json.JsonConvert.SerializeObject(cacheWarranty));
+                        _distributedCache.Remove("getlist");
+                        _distributedCache.Remove(id + "_active");
+                        return new SuccessResult("Detay Başarıyla Eklendi.");
+                    }
+
+                    return new ErrorResult("Detay Eklenemedi!");
                 }
 
-                if (warranty.Details.Any(sn => sn.SerialNumber == detail.SerialNumber))
-                {
-                    return new ErrorResult("Bu Seri Numarası Zaten Kayıtlı!");
-                }
-
-                var update = Builders<Warranty>.Update.Push("Details", detail).Set("UpdatedDate", DateTime.Now.ToShortDateString());
-                _warrantyDal.UpdateOne(filter, update);
-
-                var cacheWarranty = _warrantyDal.Get(filter);
-
-                _distributedCache.SetString(id, Newtonsoft.Json.JsonConvert.SerializeObject(cacheWarranty));
-                _distributedCache.Remove("getlist");
-                
-                return new SuccessResult("Detay Başarıyla Eklendi.");
+                return new ErrorResult("Kayıt Bulunamadı!");
             }
             catch (Exception e)
             {

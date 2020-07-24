@@ -18,5 +18,6 @@ namespace WarrantyTracking.Business.Abstract
         IResult AddDetail(string id, Detail detail);
         IResult DeleteDetail(string serialNumber);
         IDataResult<List<Warranty>> GetLatestList();
+        IDataResult<Warranty> GetActive(string id);
     }
 }

@@ -12,7 +12,7 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
     public class EfEntityRepositoryBaseMongo<TEntity> : IEntityRepositoryMongo<TEntity>
         where TEntity : class, IDocument, new()
     {
-        
+
         private readonly IMongoCollection<TEntity> _collection;
 
         public EfEntityRepositoryBaseMongo(IMongoDbSettings settings)
@@ -20,29 +20,29 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
             var database = new MongoClient(settings.ConnectionString).GetDatabase(settings.DatabaseName);
             _collection = database.GetCollection<TEntity>(GetCollectionName(typeof(TEntity)));
         }
-        
+
         private string GetCollectionName(Type documentType)
         {
-            return ((BsonCollectionAttribute) documentType.GetCustomAttributes(
+            return ((BsonCollectionAttribute)documentType.GetCustomAttributes(
                     typeof(BsonCollectionAttribute),
                     true)
                 .FirstOrDefault())?.CollectionName;
         }
-        
+
         public void Add(TEntity entity)
         {
             _collection.InsertOne(entity);
         }
 
-        public void Update(TEntity entity)
+        public bool Update(TEntity entity)
         {
-            _collection.ReplaceOne(filter: g => g._id == entity._id, replacement: entity);
+            return _collection.ReplaceOne(filter: g => g._id == entity._id, replacement: entity).ModifiedCount > 0;
         }
 
-        public void Delete(string id)
+        public bool Delete(string id)
         {
-            FilterDefinition<TEntity> data = Builders<TEntity>.Filter.Eq("_id", new ObjectId(id));  
-            _collection.DeleteOne(data);
+            FilterDefinition<TEntity> data = Builders<TEntity>.Filter.Eq("_id", new ObjectId(id));
+            return _collection.DeleteOne(data).DeletedCount > 0;
         }
 
         public TEntity Get(FilterDefinition<TEntity> filter)
@@ -50,9 +50,9 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
             return _collection.Find(filter).FirstOrDefault();
         }
 
-        public List<TEntity> GetList(FilterDefinition<TEntity> filter=null)
+        public List<TEntity> GetList(FilterDefinition<TEntity> filter = null)
         {
-            
+
             if (filter == null)
             {
                 return _collection.Find<TEntity>(_ => true).ToList<TEntity>();
@@ -60,8 +60,8 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
 
             return _collection.Find<TEntity>(filter).ToList<TEntity>();
         }
-        
-        public List<TEntity> GetProjectionList(ProjectionDefinition<TEntity> projection, FilterDefinition<TEntity> filter=null)
+
+        public List<TEntity> GetProjectionList(ProjectionDefinition<TEntity> projection, FilterDefinition<TEntity> filter = null)
         {
             if (filter == null)
             {
@@ -70,11 +70,10 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
             return _collection.Find<TEntity>(filter).Project<TEntity>(projection).ToList();
 
         }
-        
-        public void UpdateOne(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update, UpdateOptions options=null)
-        {
-            _collection.UpdateOne(filter, update, options);
 
+        public bool UpdateOne(FilterDefinition<TEntity> filter, UpdateDefinition<TEntity> update, UpdateOptions options = null)
+        {
+            return _collection.UpdateOne(filter, update, options).ModifiedCount > 0;
         }
     }
 }
