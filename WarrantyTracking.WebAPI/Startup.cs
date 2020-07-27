@@ -13,7 +13,10 @@ using WarrantyTracking.Business.Abstract;
 using WarrantyTracking.Business.Concrete;
 using WarrantyTracking.Core.CrossCuttingConcerns.Caching;
 using WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis;
+using WarrantyTracking.Core.DependencyResolvers;
+using WarrantyTracking.Core.Extensions;
 using WarrantyTracking.Core.Settings;
+using WarrantyTracking.Core.Utilities.IoC;
 using WarrantyTracking.DataAccess.Abstract;
 using WarrantyTracking.DataAccess.Concrete;
 
@@ -42,10 +45,14 @@ namespace WarrantyTracking.WebAPI
                 serviceProvider.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
             services.AddControllers();
-            
+
             services.AddScoped<IWarrantyService, WarrantyManager>();
             services.AddScoped<IWarrantyDal, EfWarrantyDal>();
-            services.AddSingleton<ICacheManager, RedisCacheManager>();
+
+            services.AddDependencyResolvers(new ICoreModule[]
+            {
+                new CoreModule(),
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

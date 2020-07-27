@@ -14,6 +14,8 @@ using WarrantyTracking.DataAccess.Abstract;
 using WarrantyTracking.Entities.Concrete;
 using MongoDB.Bson.Serialization;
 using WarrantyTracking.Business.Contants;
+using WarrantyTracking.Core.Aspects.Autofac.Caching;
+using WarrantyTracking.Core.Aspects.Autofac.Transaction;
 using WarrantyTracking.Core.CrossCuttingConcerns.Caching;
 
 namespace WarrantyTracking.Business.Concrete
@@ -28,7 +30,9 @@ namespace WarrantyTracking.Business.Concrete
             _warrantyDal = warrantyDal;
             _cacheManager = cacheManager;
         }
+        
 
+        [CacheAspect(1)]
         public IDataResult<Warranty> Get(string id)
         {
             try
@@ -63,6 +67,7 @@ namespace WarrantyTracking.Business.Concrete
             }
         }
 
+        [CacheAspect(duration:1)]
         public IDataResult<Warranty> GetByLicensePlate(string licensePlate)
         {
             try
@@ -188,6 +193,7 @@ namespace WarrantyTracking.Business.Concrete
                 return new ErrorDataResult<List<Warranty>>(Messages.ErrorMessage + e.Message);
             }
         }
+
 
         public IResult Add(Warranty warranty)
         {

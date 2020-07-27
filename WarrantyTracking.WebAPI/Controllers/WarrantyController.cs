@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using WarrantyTracking.Business.Abstract;
+using WarrantyTracking.Core.Aspects.Autofac.Caching;
 using WarrantyTracking.Entities.Concrete;
 
 namespace WarrantyTracking.WebAPI.Controllers
@@ -75,6 +76,7 @@ namespace WarrantyTracking.WebAPI.Controllers
         }
 
         [HttpGet("get/{id}")]
+        [CacheAspect(duration: 1)]
         public IActionResult Get(string id)
         {
             var result = _warrantyService.Get(id);
@@ -86,6 +88,7 @@ namespace WarrantyTracking.WebAPI.Controllers
         }
         
         [HttpGet("getbylicenseplate/{plate}")]
+        [CacheAspect(duration: 1)]
         public IActionResult GetByLicensePlate(string plate)
         {
             var result = _warrantyService.GetByLicensePlate(plate);
