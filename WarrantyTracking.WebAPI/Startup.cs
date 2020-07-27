@@ -11,6 +11,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using WarrantyTracking.Business.Abstract;
 using WarrantyTracking.Business.Concrete;
+using WarrantyTracking.Core.CrossCuttingConcerns.Caching;
+using WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis;
 using WarrantyTracking.Core.Settings;
 using WarrantyTracking.DataAccess.Abstract;
 using WarrantyTracking.DataAccess.Concrete;
@@ -43,8 +45,7 @@ namespace WarrantyTracking.WebAPI
             
             services.AddScoped<IWarrantyService, WarrantyManager>();
             services.AddScoped<IWarrantyDal, EfWarrantyDal>();
-
-
+            services.AddSingleton<ICacheManager, RedisCacheManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

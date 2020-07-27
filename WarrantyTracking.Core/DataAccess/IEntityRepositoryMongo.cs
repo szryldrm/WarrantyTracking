@@ -7,7 +7,7 @@ namespace WarrantyTracking.Core.DataAccess
 {
     public interface IEntityRepositoryMongo<T> where T:class, IDocument, new()
     {
-        void Add(T entity);  
+        bool Add(T entity);  
         bool Update(T entity);  
         bool Delete(string id);
         bool UpdateOne(FilterDefinition<T> filter, UpdateDefinition<T> update, UpdateOptions options=null);

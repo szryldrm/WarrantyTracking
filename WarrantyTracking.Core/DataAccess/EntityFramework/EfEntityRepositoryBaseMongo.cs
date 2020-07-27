@@ -29,9 +29,17 @@ namespace WarrantyTracking.Core.DataAccess.EntityFramework
                 .FirstOrDefault())?.CollectionName;
         }
 
-        public void Add(TEntity entity)
+        public bool Add(TEntity entity)
         {
-            _collection.InsertOne(entity);
+            try
+            {
+                _collection.InsertOne(entity);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public bool Update(TEntity entity)

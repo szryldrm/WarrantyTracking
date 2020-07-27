@@ -13,28 +13,31 @@ using WarrantyTracking.Core.Utilities.Results;
 using WarrantyTracking.DataAccess.Abstract;
 using WarrantyTracking.Entities.Concrete;
 using MongoDB.Bson.Serialization;
+using WarrantyTracking.Business.Contants;
+using WarrantyTracking.Core.CrossCuttingConcerns.Caching;
 
 namespace WarrantyTracking.Business.Concrete
 {
     public class WarrantyManager : IWarrantyService
     {
-        private IWarrantyDal _warrantyDal;
-        private IDistributedCache _distributedCache;
+        private readonly IWarrantyDal _warrantyDal;
+        private readonly ICacheManager _cacheManager;
 
-        public WarrantyManager(IWarrantyDal warrantyDal)
+        public WarrantyManager(IWarrantyDal warrantyDal, ICacheManager cacheManager)
         {
             _warrantyDal = warrantyDal;
+            _cacheManager = cacheManager;
         }
 
         public IDataResult<Warranty> Get(string id)
         {
             try
             {
-                var value = _distributedCache.GetString(id);
+                var value = _cacheManager.Get(id);
 
-                if (value != null)
+                if (value.Result != null)
                 {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value));
+                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.Result.ToString()));
                 }
                 else
                 {
@@ -42,19 +45,21 @@ namespace WarrantyTracking.Business.Concrete
 
                     if (newValue != null)
                     {
-                        _distributedCache.SetString(id, Newtonsoft.Json.JsonConvert.SerializeObject(newValue));
-                        return new SuccessDataResult<Warranty>(newValue);
+                        if (_cacheManager.Add(id, newValue).Result)
+                        {
+                            return new SuccessDataResult<Warranty>(newValue);
+                        }
+                        return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
                     }
                     else
                     {
-                        return new ErrorDataResult<Warranty>("Id Not Found");
+                        return new ErrorDataResult<Warranty>(Messages.IdNotFound);
                     }
-
                 }
             }
             catch (Exception e)
             {
-                return new ErrorDataResult<Warranty>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -62,11 +67,11 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                var value = _distributedCache.GetString(licensePlate);
+                var value = _cacheManager.Get(licensePlate).Result;
 
                 if (value != null)
                 {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value));
+                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.ToString()));
                 }
                 else
                 {
@@ -74,19 +79,22 @@ namespace WarrantyTracking.Business.Concrete
 
                     if (newValue != null)
                     {
-                        _distributedCache.SetString(licensePlate, Newtonsoft.Json.JsonConvert.SerializeObject(newValue));
-                        return new SuccessDataResult<Warranty>(newValue);
+                        if (_cacheManager.Add(licensePlate, newValue, 10).Result)
+                        {
+                            return new SuccessDataResult<Warranty>(newValue);
+                        }
+                        return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
                     }
                     else
                     {
-                        return new ErrorDataResult<Warranty>("License Plate Not Found");
+                        return new ErrorDataResult<Warranty>(Messages.LicensePlateNotFound);
                     }
 
                 }
             }
             catch (Exception e)
             {
-                return new ErrorDataResult<Warranty>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -94,11 +102,11 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                var value = _distributedCache.GetString("getlist");
+                var value = _cacheManager.Get("getlist").Result;
 
                 if (value != null)
                 {
-                    return new SuccessDataResult<List<Warranty>>(BsonSerializer.Deserialize<List<Warranty>>(value));
+                    return new SuccessDataResult<List<Warranty>>(BsonSerializer.Deserialize<List<Warranty>>(value.ToString()));
                 }
                 else
                 {
@@ -106,19 +114,22 @@ namespace WarrantyTracking.Business.Concrete
 
                     if (listValues != null)
                     {
-                        _distributedCache.SetString("getlist", Newtonsoft.Json.JsonConvert.SerializeObject(listValues));
-                        return new SuccessDataResult<List<Warranty>>(listValues);
+                        if (_cacheManager.Add("getlist", listValues, 10).Result)
+                        {
+                            return new SuccessDataResult<List<Warranty>>(listValues);
+                        }
+                        return new ErrorDataResult<List<Warranty>>(Messages.RecordsIsNotAddedToRedis);
                     }
                     else
                     {
-                        return new ErrorDataResult<List<Warranty>>("License Plate Not Found");
+                        return new ErrorDataResult<List<Warranty>>(Messages.ListNotFound);
                     }
 
                 }
             }
             catch (Exception e)
             {
-                return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorDataResult<List<Warranty>>(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -126,24 +137,27 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                var value = _distributedCache.GetString(id + "_active");
+                var value = _cacheManager.Get(id + "_active").Result;
 
                 if (value != null)
                 {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value));
+                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.ToString()));
                 }
                 else
                 {
                     Warranty warranty = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
                     warranty.Details.RemoveAll(d => d.IsActive == false);
-                    _distributedCache.SetString(id + "_active", Newtonsoft.Json.JsonConvert.SerializeObject(warranty));
-                    return new SuccessDataResult<Warranty>(warranty);
+                    if (_cacheManager.Add(id + "_active", warranty, 30).Result)
+                    {
+                        return new SuccessDataResult<Warranty>(warranty);
+                    }
+                    return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
                 }
 
             }
             catch (Exception e)
             {
-                return new ErrorDataResult<Warranty>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -171,7 +185,7 @@ namespace WarrantyTracking.Business.Concrete
             }
             catch (Exception e)
             {
-                return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorDataResult<List<Warranty>>(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -179,12 +193,15 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                _warrantyDal.Add(warranty);
-                return new SuccessResult("Kayıt Başarıyla Eklendi.");
+                if (_warrantyDal.Add(warranty))
+                {
+                    return new SuccessResult(Messages.RecordIsAdded);
+                }
+                return new ErrorResult(Messages.RecordIsNotAdded);
             }
             catch (Exception e)
             {
-                return new ErrorResult("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorResult(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -194,14 +211,14 @@ namespace WarrantyTracking.Business.Concrete
             {
                 if (_warrantyDal.Delete(id))
                 {
-                    return new SuccessResult("Kayıt Başarıyla Silindi.");
+                    return new SuccessResult(Messages.RecordIsDeleted);
                 }
-                return new ErrorResult("Kayıt Silinemedi!");
+                return new ErrorResult(Messages.RecordIsNotDeleted);
 
             }
             catch (Exception e)
             {
-                return new ErrorResult("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorResult(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -209,9 +226,9 @@ namespace WarrantyTracking.Business.Concrete
         {
             if (_warrantyDal.Update(warranty))
             {
-                return new SuccessResult("Kayıt Başarıyla Güncellendi.");
+                return new SuccessResult(Messages.RecordIsUpdated);
             }
-            return new ErrorResult("Kayıt Güncellenemedi!");
+            return new ErrorResult(Messages.RecordIsNotUpdated);
 
         }
 
@@ -239,22 +256,22 @@ namespace WarrantyTracking.Business.Concrete
                     {
                         Warranty cacheWarranty = _warrantyDal.Get(filter);
 
-                        _distributedCache.SetString(cacheWarranty._id.ToString(), Newtonsoft.Json.JsonConvert.SerializeObject(cacheWarranty));
-                        _distributedCache.Remove("getlist");
-                        _distributedCache.Remove(cacheWarranty._id.ToString() + "_active");
+                        _cacheManager.Add(cacheWarranty._id.ToString(), cacheWarranty);
+                        _cacheManager.Remove("getlist");
+                        _cacheManager.Remove(cacheWarranty._id.ToString() + "_active");
                     }
                     else
                     {
-                        return new ErrorResult("Kayıt Silinemedi!");
+                        return new ErrorResult(Messages.RecordIsNotDeleted);
                     }
 
-                    return new SuccessResult("Kayıt Başarıyla Silindi.");
+                    return new SuccessResult(Messages.RecordIsDeleted);
                 }
-                return new ErrorResult("Kayıt Bulunamadı!");
+                return new ErrorResult(Messages.RecordIsNotFound);
             }
             catch (Exception e)
             {
-                return new ErrorResult("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorResult(Messages.ErrorMessage + e.Message);
             }
         }
 
@@ -269,7 +286,7 @@ namespace WarrantyTracking.Business.Concrete
                 {
                     if (warranty.Details.Any(sn => sn.SerialNumber == detail.SerialNumber))
                     {
-                        return new ErrorResult("Bu Seri Numarası Zaten Kayıtlı!");
+                        return new ErrorResult(Messages.SerialNumberAlreadyExist);
                     }
 
                     var update = Builders<Warranty>.Update.Push("Details", detail).Set("UpdatedDate", DateTime.Now.ToShortDateString());
@@ -277,20 +294,20 @@ namespace WarrantyTracking.Business.Concrete
                     if (_warrantyDal.UpdateOne(filter, update))
                     {
                         var cacheWarranty = _warrantyDal.Get(filter);
-                        _distributedCache.SetString(id, Newtonsoft.Json.JsonConvert.SerializeObject(cacheWarranty));
-                        _distributedCache.Remove("getlist");
-                        _distributedCache.Remove(id + "_active");
-                        return new SuccessResult("Detay Başarıyla Eklendi.");
+                        _cacheManager.Add(id, cacheWarranty);
+                        _cacheManager.Remove("getlist");
+                        _cacheManager.Remove(id + "_active");
+                        return new SuccessResult(Messages.DetailIsAdded);
                     }
 
-                    return new ErrorResult("Detay Eklenemedi!");
+                    return new ErrorResult(Messages.DetailIsNotAddedError);
                 }
 
-                return new ErrorResult("Kayıt Bulunamadı!");
+                return new ErrorResult(Messages.RecordIsNotFound);
             }
             catch (Exception e)
             {
-                return new ErrorResult("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+                return new ErrorResult(Messages.ErrorMessage + e.Message);
             }
         }
     }
