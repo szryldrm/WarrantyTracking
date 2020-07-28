@@ -31,43 +31,19 @@ namespace WarrantyTracking.Business.Concrete
             _cacheManager = cacheManager;
         }
         
-
-        [CacheAspect(1)]
+        [TransactionScopeAspect(Priority = 1)]
+        [CacheAspect(duration:60,Priority = 2)]
         public IDataResult<Warranty> Get(string id)
         {
             try
             {
-                var value = _cacheManager.Get(id);
-
-                if (value.Result != null)
-                {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.Result.ToString()));
-                }
-                else
-                {
-                    Warranty newValue = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
-
-                    if (newValue != null)
-                    {
-                        if (_cacheManager.Add(id, newValue).Result)
-                        {
-                            return new SuccessDataResult<Warranty>(newValue);
-                        }
-                        return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
-                    }
-                    else
-                    {
-                        return new ErrorDataResult<Warranty>(Messages.IdNotFound);
-                    }
-                }
+                return new SuccessDataResult<Warranty>(_warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id))));
             }
             catch (Exception e)
             {
                 return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
             }
         }
-
-        [CacheAspect(duration:1)]
         public IDataResult<Warranty> GetByLicensePlate(string licensePlate)
         {
             try

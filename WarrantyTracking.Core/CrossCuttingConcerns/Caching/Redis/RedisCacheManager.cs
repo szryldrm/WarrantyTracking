@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
+using WarrantyTracking.Core.Utilities.Results;
 
 namespace WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis
 {

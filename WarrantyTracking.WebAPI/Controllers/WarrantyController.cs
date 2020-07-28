@@ -76,7 +76,6 @@ namespace WarrantyTracking.WebAPI.Controllers
         }
 
         [HttpGet("get/{id}")]
-        [CacheAspect(duration: 1)]
         public IActionResult Get(string id)
         {
             var result = _warrantyService.Get(id);
@@ -88,7 +87,6 @@ namespace WarrantyTracking.WebAPI.Controllers
         }
         
         [HttpGet("getbylicenseplate/{plate}")]
-        [CacheAspect(duration: 1)]
         public IActionResult GetByLicensePlate(string plate)
         {
             var result = _warrantyService.GetByLicensePlate(plate);

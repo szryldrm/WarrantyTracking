@@ -9,10 +9,13 @@ using WarrantyTracking.DataAccess.Concrete;
 
 namespace WarrantyTracking.Business.DependencyResolvers.Autofac
 {
-    public class AutofacBusinessModule:Module
+    public class AutofacBusinessModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<WarrantyManager>().As<IWarrantyService>();
+            builder.RegisterType<EfWarrantyDal>().As<IWarrantyDal>();
+
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             builder.RegisterAssemblyTypes(assembly).AsImplementedInterfaces()
                 .EnableInterfaceInterceptors(
@@ -20,9 +23,6 @@ namespace WarrantyTracking.Business.DependencyResolvers.Autofac
                     {
                         Selector = new AspectInterceptorSelector()
                     }).SingleInstance();
-
-            builder.RegisterType<WarrantyManager>().As<IWarrantyService>();
-            builder.RegisterType<EfWarrantyDal>().As<IWarrantyDal>();
         }
     }
 }
