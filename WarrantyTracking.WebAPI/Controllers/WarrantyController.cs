@@ -5,6 +5,7 @@ using MongoDB.Bson;
 using Newtonsoft.Json;
 using WarrantyTracking.Business.Abstract;
 using WarrantyTracking.Core.Aspects.Autofac.Caching;
+using WarrantyTracking.Core.Aspects.Autofac.Transaction;
 using WarrantyTracking.Entities.Concrete;
 
 namespace WarrantyTracking.WebAPI.Controllers
@@ -74,7 +75,7 @@ namespace WarrantyTracking.WebAPI.Controllers
             }
             return BadRequest(result.Message);
         }
-
+        
         [HttpGet("get/{id}")]
         public IActionResult Get(string id)
         {

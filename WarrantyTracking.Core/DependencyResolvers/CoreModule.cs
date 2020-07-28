@@ -14,6 +14,7 @@ namespace WarrantyTracking.Core.DependencyResolvers
         public void Load(IServiceCollection services)
         {
             services.AddSingleton<ICacheManager, RedisCacheManager>();
+            services.AddSingleton<Stopwatch>();
         }
     }
 }
