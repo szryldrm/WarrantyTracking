@@ -62,6 +62,8 @@ namespace WarrantyTracking.WebAPI
             {
                 app.UseDeveloperExceptionPage();
             }
+            
+            app.ConfigureCustomExceptionMiddleware();
 
             app.UseRouting();
 
