@@ -28,7 +28,7 @@ namespace WarrantyTracking.Core.Aspects.Autofac.Caching
             var key = $"{methodName}({string.Join(",", arguments.Select(x => x?.ToString() ?? "<Null>"))})";
             if (_cacheManager.IsAdded(key).Result)
             {
-                invocation.ReturnValue = _cacheManager.Get(key);
+                invocation.ReturnValue = _cacheManager.Get(key).Result;
                 return;
             }
             invocation.Proceed();

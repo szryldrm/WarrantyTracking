@@ -11,17 +11,20 @@ namespace WarrantyTracking.Core.Aspects.Autofac.Transaction
     {
         public override void Intercept(IInvocation invocation)
         {
-            using TransactionScope transactionScope = new TransactionScope();
-            try
+            using (TransactionScope transactionScope = new TransactionScope())
             {
-                invocation.Proceed();
-                transactionScope.Complete();
+                try
+                {
+                    invocation.Proceed();
+                    transactionScope.Complete();
+                }
+                catch (Exception)
+                {
+                    transactionScope.Dispose();
+                    throw;
+                }
             }
-            catch (Exception)
-            {
-                transactionScope.Dispose();
-                throw;
-            }
+            
         }
     }
 }

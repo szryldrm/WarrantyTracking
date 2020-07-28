@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Distributed;
@@ -15,8 +16,11 @@ using WarrantyTracking.Entities.Concrete;
 using MongoDB.Bson.Serialization;
 using WarrantyTracking.Business.Contants;
 using WarrantyTracking.Core.Aspects.Autofac.Caching;
+using WarrantyTracking.Core.Aspects.Autofac.Logging;
+using WarrantyTracking.Core.Aspects.Autofac.Performans;
 using WarrantyTracking.Core.Aspects.Autofac.Transaction;
 using WarrantyTracking.Core.CrossCuttingConcerns.Caching;
+using WarrantyTracking.Core.CrossCuttingConcerns.Logging.Log4Net.Loggers;
 
 namespace WarrantyTracking.Business.Concrete
 {
@@ -30,77 +34,20 @@ namespace WarrantyTracking.Business.Concrete
             _warrantyDal = warrantyDal;
             _cacheManager = cacheManager;
         }
-        
 
-        [CacheAspect(1)]
+        [TransactionScopeAspect(Priority = 1)]
+        //[CacheAspect(duration: 60, Priority = 2)]
+        //[PerformansAspect(1, Priority = 2)]
+        [LogAspect(typeof(FileLogger))]
         public IDataResult<Warranty> Get(string id)
         {
-            try
-            {
-                var value = _cacheManager.Get(id);
-
-                if (value.Result != null)
-                {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.Result.ToString()));
-                }
-                else
-                {
-                    Warranty newValue = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
-
-                    if (newValue != null)
-                    {
-                        if (_cacheManager.Add(id, newValue).Result)
-                        {
-                            return new SuccessDataResult<Warranty>(newValue);
-                        }
-                        return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
-                    }
-                    else
-                    {
-                        return new ErrorDataResult<Warranty>(Messages.IdNotFound);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
-            }
+            return new SuccessDataResult<Warranty>(
+                _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id))));
         }
-
-        [CacheAspect(duration:1)]
         public IDataResult<Warranty> GetByLicensePlate(string licensePlate)
         {
-            try
-            {
-                var value = _cacheManager.Get(licensePlate).Result;
-
-                if (value != null)
-                {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.ToString()));
-                }
-                else
-                {
-                    Warranty newValue = _warrantyDal.Get(Builders<Warranty>.Filter.Regex("LicensePlate", new BsonRegularExpression("/^" + licensePlate + "$/i")));
-
-                    if (newValue != null)
-                    {
-                        if (_cacheManager.Add(licensePlate, newValue, 10).Result)
-                        {
-                            return new SuccessDataResult<Warranty>(newValue);
-                        }
-                        return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
-                    }
-                    else
-                    {
-                        return new ErrorDataResult<Warranty>(Messages.LicensePlateNotFound);
-                    }
-
-                }
-            }
-            catch (Exception e)
-            {
-                return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
-            }
+            return new SuccessDataResult<Warranty>(_warrantyDal.Get(Builders<Warranty>.Filter.Regex("LicensePlate",
+                new BsonRegularExpression("/^" + licensePlate + "$/i"))));
         }
 
         public IDataResult<List<Warranty>> GetList()
@@ -111,7 +58,8 @@ namespace WarrantyTracking.Business.Concrete
 
                 if (value != null)
                 {
-                    return new SuccessDataResult<List<Warranty>>(BsonSerializer.Deserialize<List<Warranty>>(value.ToString()));
+                    return new SuccessDataResult<List<Warranty>>(
+                        BsonSerializer.Deserialize<List<Warranty>>(value.ToString()));
                 }
                 else
                 {
@@ -123,13 +71,13 @@ namespace WarrantyTracking.Business.Concrete
                         {
                             return new SuccessDataResult<List<Warranty>>(listValues);
                         }
+
                         return new ErrorDataResult<List<Warranty>>(Messages.RecordsIsNotAddedToRedis);
                     }
                     else
                     {
                         return new ErrorDataResult<List<Warranty>>(Messages.ListNotFound);
                     }
-
                 }
             }
             catch (Exception e)
@@ -156,9 +104,9 @@ namespace WarrantyTracking.Business.Concrete
                     {
                         return new SuccessDataResult<Warranty>(warranty);
                     }
+
                     return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
                 }
-
             }
             catch (Exception e)
             {
@@ -183,10 +131,10 @@ namespace WarrantyTracking.Business.Concrete
         {
             try
             {
-                return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x => x.UpdatedDate).ToList());
+                return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList()
+                    .OrderByDescending(x => x.UpdatedDate).ToList());
                 //To Get Specific Number Of List - Using .Take(10)
                 //return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).Take(5).ToList());
-
             }
             catch (Exception e)
             {
@@ -203,6 +151,7 @@ namespace WarrantyTracking.Business.Concrete
                 {
                     return new SuccessResult(Messages.RecordIsAdded);
                 }
+
                 return new ErrorResult(Messages.RecordIsNotAdded);
             }
             catch (Exception e)
@@ -219,8 +168,8 @@ namespace WarrantyTracking.Business.Concrete
                 {
                     return new SuccessResult(Messages.RecordIsDeleted);
                 }
-                return new ErrorResult(Messages.RecordIsNotDeleted);
 
+                return new ErrorResult(Messages.RecordIsNotDeleted);
             }
             catch (Exception e)
             {
@@ -234,8 +183,8 @@ namespace WarrantyTracking.Business.Concrete
             {
                 return new SuccessResult(Messages.RecordIsUpdated);
             }
-            return new ErrorResult(Messages.RecordIsNotUpdated);
 
+            return new ErrorResult(Messages.RecordIsNotUpdated);
         }
 
         public IResult DeleteDetail(string serialNumber)
@@ -247,7 +196,8 @@ namespace WarrantyTracking.Business.Concrete
 
                 if (value != null)
                 {
-                    var update = Builders<Warranty>.Update.Set("Details.$[s].IsActive", false).Set("UpdatedDate", DateTime.Now.ToShortDateString());
+                    var update = Builders<Warranty>.Update.Set("Details.$[s].IsActive", false)
+                        .Set("UpdatedDate", DateTime.Now.ToShortDateString());
                     var options = new UpdateOptions
                     {
                         ArrayFilters = new List<ArrayFilterDefinition>
@@ -273,6 +223,7 @@ namespace WarrantyTracking.Business.Concrete
 
                     return new SuccessResult(Messages.RecordIsDeleted);
                 }
+
                 return new ErrorResult(Messages.RecordIsNotFound);
             }
             catch (Exception e)
@@ -295,7 +246,8 @@ namespace WarrantyTracking.Business.Concrete
                         return new ErrorResult(Messages.SerialNumberAlreadyExist);
                     }
 
-                    var update = Builders<Warranty>.Update.Push("Details", detail).Set("UpdatedDate", DateTime.Now.ToShortDateString());
+                    var update = Builders<Warranty>.Update.Push("Details", detail)
+                        .Set("UpdatedDate", DateTime.Now.ToShortDateString());
 
                     if (_warrantyDal.UpdateOne(filter, update))
                     {
