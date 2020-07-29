@@ -1,72 +1,95 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+using WarrantyTracking.Core.Utilities.IoC;
+using WarrantyTracking.Core.Utilities.Serialize;
 using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
-using WarrantyTracking.Core.Utilities.Results;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using ServiceStack.Redis;
 
 namespace WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis
 {
-    public class RedisCacheManager:ICacheManager
+    public class RedisCacheManager : ICacheManager
     {
+        private readonly RedisEndpoint _redisEndpoint;
+
         private readonly IDistributedCache _distributedCache;
+
+        private void RedisInvoker(Action<RedisClient> redisAction)
+        {
+            if (_redisEndpoint == null)
+            {
+                throw new NullReferenceException();
+            }
+
+            using (var client = new RedisClient(_redisEndpoint))
+            {
+                redisAction.Invoke(client);
+            }
+        }
+
 
         public RedisCacheManager(IDistributedCache distributedCache)
         {
-            _distributedCache = distributedCache;
-        }
+            _distributedCache = ServiceTool.ServiceProvider.GetService<IDistributedCache>();
+            var configuration = (IConfiguration)ServiceTool.ServiceProvider.GetService(typeof(IConfiguration));
 
-        public async Task<T> Get<T>(string key)
-        {
-            var value = await _distributedCache.GetStringAsync(key);
-            return JsonConvert.DeserializeObject<T>(value);
-        }
+            var redisConnectionInfo = configuration.GetValue<string>("RedisHostInformation").Split(':');
 
-        public async Task<object> Get(string key)
-        {
-            var value = await _distributedCache.GetStringAsync(key);
-            return value;
-        }
-
-        public async Task<bool> Add(string key, object data, int duration)
-        {
-            try
+            if (redisConnectionInfo.Length != 2 || int.TryParse(redisConnectionInfo[1], out var port) == false || port == 0)
             {
-                if (data == null) return false;
-                var value = JsonConvert.SerializeObject(data);
-                await _distributedCache.SetStringAsync(key, value, new DistributedCacheEntryOptions()
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(duration)
-                });
-                return true;
+                throw new NullReferenceException();
+            }
 
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            _redisEndpoint = new RedisEndpoint(redisConnectionInfo[0], port);
         }
 
-        public async Task<bool> IsAdded(string key)
+        public T Get<T>(string key)
         {
-            var value = await _distributedCache.GetStringAsync(key);
-            return value != null;
+            byte[] result;
+            result = _distributedCache.Get(key);
+            var deserializeResult = CacheSerializer.Deserialize<T>(result);
+            return deserializeResult;
         }
 
-        public async Task<bool> Remove(string key)
+        public object Get(string key)
         {
-            try
-            {
-                if (key == null) return false;
-                await _distributedCache.RemoveAsync(key);
-                return true;
+            byte[] result;
+            result = _distributedCache.Get(key);
+            var deserializeResult = CacheSerializer.Deserialize<object>(result);
+            return deserializeResult;
+        }
 
-            }
-            catch (Exception)
+        public void Add(string key, object data, int duration)
+        {
+            _distributedCache.Set(key, CacheSerializer.Serialize(data), new DistributedCacheEntryOptions
             {
-                return false;
-            }
+                AbsoluteExpiration = DateTime.Now.AddMinutes(duration)
+            });
+        }
+
+        public bool IsAdd(string key)
+        {
+            var isAdded = false;
+            RedisInvoker(x => isAdded = x.ContainsKey(key));
+            return isAdded;
+        }
+
+        public void Remove(string key)
+        {
+            _distributedCache.Remove(key);
+        }
+
+        public void RemoveByPattern(string pattern)
+        {
+            var result = default(object);
+            RedisInvoker(x => x.RemoveByPattern(pattern));
+            result = pattern;
+        }
+
+        public void Clear()
+        {
+            RedisInvoker(x => x.FlushAll());
         }
     }
+
 }

@@ -1,5 +1,8 @@
+using System;
+
 namespace WarrantyTracking.Core.Utilities.Results
 {
+    [Serializable]
     public class SuccessDataResult<T>:DataResult<T>
     {
         public SuccessDataResult(T data, string message) : base(data, true, message)

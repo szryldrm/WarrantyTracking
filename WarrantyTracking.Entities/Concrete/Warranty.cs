@@ -8,6 +8,7 @@ using WarrantyTracking.Core.Settings;
 
 namespace WarrantyTracking.Entities.Concrete
 {
+    [System.Serializable]
     [BsonCollection("Warranty")]
     public class Warranty:IDocument
     {

@@ -13,6 +13,10 @@ namespace WarrantyTracking.Core.DependencyResolvers
     {
         public void Load(IServiceCollection services)
         {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "164.90.190.170:8080";
+            });
             services.AddSingleton<ICacheManager, RedisCacheManager>();
             services.AddSingleton<Stopwatch>();
         }

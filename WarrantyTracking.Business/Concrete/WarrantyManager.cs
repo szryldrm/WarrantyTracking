@@ -36,9 +36,9 @@ namespace WarrantyTracking.Business.Concrete
         }
 
         [TransactionScopeAspect(Priority = 1)]
-        //[CacheAspect(duration: 60, Priority = 2)]
+        [CacheAspect(duration: 60, Priority = 2)]
         //[PerformansAspect(1, Priority = 2)]
-        [LogAspect(typeof(FileLogger))]
+        //[LogAspect(typeof(FileLogger))]
         public IDataResult<Warranty> Get(string id)
         {
             return new SuccessDataResult<Warranty>(
@@ -52,66 +52,69 @@ namespace WarrantyTracking.Business.Concrete
 
         public IDataResult<List<Warranty>> GetList()
         {
-            try
-            {
-                var value = _cacheManager.Get("getlist").Result;
+            //try
+            //{
+            //    var value = _cacheManager.Get("getlist").Result;
 
-                if (value != null)
-                {
-                    return new SuccessDataResult<List<Warranty>>(
-                        BsonSerializer.Deserialize<List<Warranty>>(value.ToString()));
-                }
-                else
-                {
-                    List<Warranty> listValues = _warrantyDal.GetList();
+            //    if (value != null)
+            //    {
+            //        return new SuccessDataResult<List<Warranty>>(
+            //            BsonSerializer.Deserialize<List<Warranty>>(value.ToString()));
+            //    }
+            //    else
+            //    {
+            //        List<Warranty> listValues = _warrantyDal.GetList();
 
-                    if (listValues != null)
-                    {
-                        if (_cacheManager.Add("getlist", listValues, 10).Result)
-                        {
-                            return new SuccessDataResult<List<Warranty>>(listValues);
-                        }
+            //        if (listValues != null)
+            //        {
+            //            if (_cacheManager.Add("getlist", listValues, 10).Result)
+            //            {
+            //                return new SuccessDataResult<List<Warranty>>(listValues);
+            //            }
 
-                        return new ErrorDataResult<List<Warranty>>(Messages.RecordsIsNotAddedToRedis);
-                    }
-                    else
-                    {
-                        return new ErrorDataResult<List<Warranty>>(Messages.ListNotFound);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                return new ErrorDataResult<List<Warranty>>(Messages.ErrorMessage + e.Message);
-            }
+            //            return new ErrorDataResult<List<Warranty>>(Messages.RecordsIsNotAddedToRedis);
+            //        }
+            //        else
+            //        {
+            //            return new ErrorDataResult<List<Warranty>>(Messages.ListNotFound);
+            //        }
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    return new ErrorDataResult<List<Warranty>>(Messages.ErrorMessage + e.Message);
+            //}
+
+            return new SuccessDataResult<List<Warranty>>();
         }
 
         public IDataResult<Warranty> GetActive(string id)
         {
-            try
-            {
-                var value = _cacheManager.Get(id + "_active").Result;
+            //try
+            //{
+            //    var value = _cacheManager.Get(id + "_active").Result;
 
-                if (value != null)
-                {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.ToString()));
-                }
-                else
-                {
-                    Warranty warranty = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
-                    warranty.Details.RemoveAll(d => d.IsActive == false);
-                    if (_cacheManager.Add(id + "_active", warranty, 30).Result)
-                    {
-                        return new SuccessDataResult<Warranty>(warranty);
-                    }
+            //    if (value != null)
+            //    {
+            //        return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.ToString()));
+            //    }
+            //    else
+            //    {
+            //        Warranty warranty = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
+            //        warranty.Details.RemoveAll(d => d.IsActive == false);
+            //        if (_cacheManager.Add(id + "_active", warranty, 30).Result)
+            //        {
+            //            return new SuccessDataResult<Warranty>(warranty);
+            //        }
 
-                    return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
-                }
-            }
-            catch (Exception e)
-            {
-                return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
-            }
+            //        return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
+            //}
+            return new SuccessDataResult<Warranty>();
         }
 
         // public IDataResult<List<Warranty>> GetActiveList()
