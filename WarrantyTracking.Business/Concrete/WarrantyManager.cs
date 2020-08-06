@@ -36,82 +36,54 @@ namespace WarrantyTracking.Business.Concrete
         }
 
         [TransactionScopeAspect(Priority = 1)]
-        //[CacheAspect(duration: 60, Priority = 2)]
+        [CacheAspect(duration: 60, Priority = 2)]
         //[PerformansAspect(1, Priority = 2)]
-        [LogAspect(typeof(FileLogger))]
+        [LogAspect(typeof(DatabaseLogger))]
         public IDataResult<Warranty> Get(string id)
         {
-            return new SuccessDataResult<Warranty>(
-                _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id))));
+            var value = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
+
+            return value != null
+                ? (IDataResult<Warranty>) new SuccessDataResult<Warranty>(value)
+                : new ErrorDataResult<Warranty>(Messages.RecordIsNotFound);
         }
+
+        [TransactionScopeAspect(Priority = 1)]
+        [CacheAspect(duration: 60, Priority = 2)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 3)]
         public IDataResult<Warranty> GetByLicensePlate(string licensePlate)
         {
-            return new SuccessDataResult<Warranty>(_warrantyDal.Get(Builders<Warranty>.Filter.Regex("LicensePlate",
-                new BsonRegularExpression("/^" + licensePlate + "$/i"))));
+            var value = _warrantyDal.Get(Builders<Warranty>.Filter.Regex("LicensePlate",
+                new BsonRegularExpression("/^" + licensePlate + "$/i")));
+
+            return value != null
+                ? (IDataResult<Warranty>) new SuccessDataResult<Warranty>(value)
+                : new ErrorDataResult<Warranty>(Messages.RecordIsNotFound);
         }
 
+        [TransactionScopeAspect(Priority = 1)]
+        [CacheAspect(duration: 60, Priority = 2)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 3)]
         public IDataResult<List<Warranty>> GetList()
         {
-            try
-            {
-                var value = _cacheManager.Get("getlist").Result;
+            var value = _warrantyDal.GetList();
 
-                if (value != null)
-                {
-                    return new SuccessDataResult<List<Warranty>>(
-                        BsonSerializer.Deserialize<List<Warranty>>(value.ToString()));
-                }
-                else
-                {
-                    List<Warranty> listValues = _warrantyDal.GetList();
-
-                    if (listValues != null)
-                    {
-                        if (_cacheManager.Add("getlist", listValues, 10).Result)
-                        {
-                            return new SuccessDataResult<List<Warranty>>(listValues);
-                        }
-
-                        return new ErrorDataResult<List<Warranty>>(Messages.RecordsIsNotAddedToRedis);
-                    }
-                    else
-                    {
-                        return new ErrorDataResult<List<Warranty>>(Messages.ListNotFound);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                return new ErrorDataResult<List<Warranty>>(Messages.ErrorMessage + e.Message);
-            }
+            return value != null
+                ? (IDataResult<List<Warranty>>) new SuccessDataResult<List<Warranty>>(value)
+                : new ErrorDataResult<List<Warranty>>(Messages.ListNotFound);
         }
 
+        [TransactionScopeAspect(Priority = 1)]
+        [CacheAspect(duration: 60, Priority = 2)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 3)]
         public IDataResult<Warranty> GetActive(string id)
         {
-            try
-            {
-                var value = _cacheManager.Get(id + "_active").Result;
+            Warranty value = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
 
-                if (value != null)
-                {
-                    return new SuccessDataResult<Warranty>(BsonSerializer.Deserialize<Warranty>(value.ToString()));
-                }
-                else
-                {
-                    Warranty warranty = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
-                    warranty.Details.RemoveAll(d => d.IsActive == false);
-                    if (_cacheManager.Add(id + "_active", warranty, 30).Result)
-                    {
-                        return new SuccessDataResult<Warranty>(warranty);
-                    }
+            if (value == null) return new ErrorDataResult<Warranty>(Messages.RecordIsNotFound);
 
-                    return new ErrorDataResult<Warranty>(Messages.RecordsIsNotAddedToRedis);
-                }
-            }
-            catch (Exception e)
-            {
-                return new ErrorDataResult<Warranty>(Messages.ErrorMessage + e.Message);
-            }
+            value.Details.RemoveAll(d => d.IsActive == false);
+            return new SuccessDataResult<Warranty>(value);
         }
 
         // public IDataResult<List<Warranty>> GetActiveList()
@@ -127,146 +99,105 @@ namespace WarrantyTracking.Business.Concrete
         //         return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
         //     }
         // }
+
+        [TransactionScopeAspect(Priority = 1)]
+        [CacheAspect(duration: 60, Priority = 2)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 3)]
         public IDataResult<List<Warranty>> GetLatestList()
         {
-            try
-            {
-                return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList()
-                    .OrderByDescending(x => x.UpdatedDate).ToList());
-                //To Get Specific Number Of List - Using .Take(10)
-                //return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).Take(5).ToList());
-            }
-            catch (Exception e)
-            {
-                return new ErrorDataResult<List<Warranty>>(Messages.ErrorMessage + e.Message);
-            }
+            var value = _warrantyDal.GetList().OrderByDescending(x => x.UpdatedDate).ToList();
+            //To Get Specific Number Of List - Using .Take(10)
+            //return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).Take(5).ToList());
+
+            return value != null ? new SuccessDataResult<List<Warranty>>(value) : new SuccessDataResult<List<Warranty>>(Messages.ListNotFound);
         }
 
-
+        [TransactionScopeAspect(Priority = 1)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 2)]
+        [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
         public IResult Add(Warranty warranty)
         {
-            try
-            {
-                if (_warrantyDal.Add(warranty))
-                {
-                    return new SuccessResult(Messages.RecordIsAdded);
-                }
-
-                return new ErrorResult(Messages.RecordIsNotAdded);
-            }
-            catch (Exception e)
-            {
-                return new ErrorResult(Messages.ErrorMessage + e.Message);
-            }
+            return _warrantyDal.Add(warranty)
+                ? (IResult) new SuccessResult(Messages.RecordIsAdded)
+                : new ErrorResult(Messages.RecordIsNotAdded);
         }
 
+        [TransactionScopeAspect(Priority = 1)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 2)]
+        [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
         public IResult Delete(string id)
         {
-            try
-            {
-                if (_warrantyDal.Delete(id))
-                {
-                    return new SuccessResult(Messages.RecordIsDeleted);
-                }
-
-                return new ErrorResult(Messages.RecordIsNotDeleted);
-            }
-            catch (Exception e)
-            {
-                return new ErrorResult(Messages.ErrorMessage + e.Message);
-            }
+            return _warrantyDal.Delete(id)
+                ? (IResult) new SuccessResult(Messages.RecordIsDeleted)
+                : new ErrorResult(Messages.RecordIsNotDeleted);
         }
 
+        [TransactionScopeAspect(Priority = 1)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 2)]
+        [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
         public IResult Update(Warranty warranty)
         {
-            if (_warrantyDal.Update(warranty))
-            {
-                return new SuccessResult(Messages.RecordIsUpdated);
-            }
-
-            return new ErrorResult(Messages.RecordIsNotUpdated);
+            return _warrantyDal.Update(warranty)
+                ? (IResult) new SuccessResult(Messages.RecordIsUpdated)
+                : new ErrorResult(Messages.RecordIsNotUpdated);
         }
 
+        [TransactionScopeAspect(Priority = 1)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 2)]
+        [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
         public IResult DeleteDetail(string serialNumber)
         {
-            try
-            {
-                var filter = Builders<Warranty>.Filter.Eq("Details.SerialNumber", serialNumber);
-                var value = _warrantyDal.Get(filter);
+            var filter = Builders<Warranty>.Filter.Eq("Details.SerialNumber", serialNumber);
+            var value = _warrantyDal.Get(filter);
 
-                if (value != null)
+            if (value == null) return new ErrorResult(Messages.RecordIsNotFound);
+
+            var update = Builders<Warranty>.Update.Set("Details.$[s].IsActive", false)
+                .Set("UpdatedDate", DateTime.Now.ToShortDateString());
+            var options = new UpdateOptions
+            {
+                ArrayFilters = new List<ArrayFilterDefinition>
                 {
-                    var update = Builders<Warranty>.Update.Set("Details.$[s].IsActive", false)
-                        .Set("UpdatedDate", DateTime.Now.ToShortDateString());
-                    var options = new UpdateOptions
-                    {
-                        ArrayFilters = new List<ArrayFilterDefinition>
-                        {
-                            new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("s.SerialNumber",
-                                serialNumber))
-                        }
-                    };
-                    bool result = _warrantyDal.UpdateOne(filter, update, options);
-
-                    if (result)
-                    {
-                        Warranty cacheWarranty = _warrantyDal.Get(filter);
-
-                        _cacheManager.Add(cacheWarranty._id.ToString(), cacheWarranty);
-                        _cacheManager.Remove("getlist");
-                        _cacheManager.Remove(cacheWarranty._id.ToString() + "_active");
-                    }
-                    else
-                    {
-                        return new ErrorResult(Messages.RecordIsNotDeleted);
-                    }
-
-                    return new SuccessResult(Messages.RecordIsDeleted);
+                    new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("s.SerialNumber",
+                        serialNumber))
                 }
+            };
 
-                return new ErrorResult(Messages.RecordIsNotFound);
-            }
-            catch (Exception e)
+            var result = _warrantyDal.UpdateOne(filter, update, options);
+
+            if (result)
             {
-                return new ErrorResult(Messages.ErrorMessage + e.Message);
+                return new SuccessResult(Messages.RecordIsDeleted);
             }
+
+            return new ErrorResult(Messages.RecordIsNotDeleted);
         }
 
+        [TransactionScopeAspect(Priority = 1)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 2)]
+        [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
         public IResult AddDetail(string id, Detail detail)
         {
-            try
+            var filter = Builders<Warranty>.Filter.Eq("_id", new ObjectId(id));
+            var warranty = _warrantyDal.Get(filter);
+
+            if (warranty == null) return new ErrorResult(Messages.RecordIsNotFound);
+
+            if (warranty.Details.Any(sn => sn.SerialNumber == detail.SerialNumber))
             {
-                var filter = Builders<Warranty>.Filter.Eq("_id", new ObjectId(id));
-                var warranty = _warrantyDal.Get(filter);
-
-                if (warranty != null)
-                {
-                    if (warranty.Details.Any(sn => sn.SerialNumber == detail.SerialNumber))
-                    {
-                        return new ErrorResult(Messages.SerialNumberAlreadyExist);
-                    }
-
-                    var update = Builders<Warranty>.Update.Push("Details", detail)
-                        .Set("UpdatedDate", DateTime.Now.ToShortDateString());
-
-                    if (_warrantyDal.UpdateOne(filter, update))
-                    {
-                        var cacheWarranty = _warrantyDal.Get(filter);
-                        _cacheManager.Add(id, cacheWarranty);
-                        _cacheManager.Remove("getlist");
-                        _cacheManager.Remove(id + "_active");
-                        return new SuccessResult(Messages.DetailIsAdded);
-                    }
-
-                    return new ErrorResult(Messages.DetailIsNotAddedError);
-                }
-
-                return new ErrorResult(Messages.RecordIsNotFound);
+                return new ErrorResult(Messages.SerialNumberAlreadyExist);
             }
-            catch (Exception e)
+
+            var update = Builders<Warranty>.Update.Push("Details", detail)
+                .Set("UpdatedDate", DateTime.Now.ToShortDateString());
+
+            if (_warrantyDal.UpdateOne(filter, update))
             {
-                return new ErrorResult(Messages.ErrorMessage + e.Message);
+                return new SuccessResult(Messages.DetailIsAdded);
             }
+
+            return new ErrorResult(Messages.DetailIsNotAddedError);
+
         }
     }
 }

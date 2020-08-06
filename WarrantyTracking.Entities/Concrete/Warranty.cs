@@ -8,12 +8,12 @@ using WarrantyTracking.Core.Settings;
 
 namespace WarrantyTracking.Entities.Concrete
 {
+    [System.Serializable]
     [BsonCollection("Warranty")]
     public class Warranty:IDocument
     {
-        [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public ObjectId _id { get; set; }
+        public string _id { get; set; }
         public String LicensePlate { get; set; }
         [BsonElement("Details")]
         public List<Detail> Details { get; set; }

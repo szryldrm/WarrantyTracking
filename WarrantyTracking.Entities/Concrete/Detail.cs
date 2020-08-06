@@ -3,6 +3,7 @@ using WarrantyTracking.Core.Entities;
 
 namespace WarrantyTracking.Entities.Concrete
 {
+    [Serializable]
     public class Detail:IEntity
     {
         public String SerialNumber { get; set; }

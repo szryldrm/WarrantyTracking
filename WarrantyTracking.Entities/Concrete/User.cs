@@ -1,7 +1,9 @@
+using System;
 using WarrantyTracking.Core.Entities;
 
 namespace WarrantyTracking.Entities.Concrete
 {
+    [Serializable]
     public class User:IEntity
     {
         public int Id { get; set; }
