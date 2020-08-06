@@ -5,8 +5,7 @@ namespace WarrantyTracking.Core.Entities
 {
     public interface IDocument
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.String)]
-        ObjectId _id { get; set; }
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string _id { get; set; }
     }
 }
