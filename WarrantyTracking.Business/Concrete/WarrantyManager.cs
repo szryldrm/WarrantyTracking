@@ -115,6 +115,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
+        //[CacheFlushAspect(Priority = 4)]
         public IResult Add(Warranty warranty)
         {
             return _warrantyDal.Add(warranty)
@@ -125,6 +126,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
+        //[CacheFlushAspect(Priority = 4)]
         public IResult Delete(string id)
         {
             return _warrantyDal.Delete(id)
@@ -135,6 +137,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
+        //[CacheFlushAspect(Priority = 4)]
         public IResult Update(Warranty warranty)
         {
             return _warrantyDal.Update(warranty)
@@ -145,6 +148,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
+        //[CacheFlushAspect(Priority = 4)]
         public IResult DeleteDetail(string serialNumber)
         {
             var filter = Builders<Warranty>.Filter.Eq("Details.SerialNumber", serialNumber);
@@ -176,6 +180,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
+        //[CacheFlushAspect(Priority = 4)]
         public IResult AddDetail(string id, Detail detail)
         {
             var filter = Builders<Warranty>.Filter.Eq("_id", new ObjectId(id));
