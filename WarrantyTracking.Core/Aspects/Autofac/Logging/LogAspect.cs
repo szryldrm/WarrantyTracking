@@ -8,7 +8,7 @@ using WarrantyTracking.Core.Utilities.Messages;
 
 namespace WarrantyTracking.Core.Aspects.Autofac.Logging
 {
-    public class LogAspect:MethodInterception
+    public class LogAspect : MethodInterception
     {
         private LoggerServiceBase _loggerServiceBase;
 
@@ -42,7 +42,7 @@ namespace WarrantyTracking.Core.Aspects.Autofac.Logging
 
             var logDetail = new LogDetail
             {
-                MethodName = invocation.Method.Name,
+                MethodName = string.Format($"{invocation.Method.ReflectedType.FullName}.{invocation.Method.Name}"),
                 LogParameters = logParameters,
                 DateTime = DateTime.Now
             };

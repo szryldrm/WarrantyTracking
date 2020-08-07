@@ -37,11 +37,13 @@ namespace WarrantyTracking.Business.Concrete
 
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
-        //[PerformansAspect(1, Priority = 2)]
+        [PerformansAspect(typeof(DatabaseLogger), 1, Priority = 3)]
         [LogAspect(typeof(DatabaseLogger))]
         public IDataResult<Warranty> Get(string id)
         {
             var value = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
+
+            Thread.Sleep(10000);
 
             return value != null
                 ? (IDataResult<Warranty>) new SuccessDataResult<Warranty>(value)
