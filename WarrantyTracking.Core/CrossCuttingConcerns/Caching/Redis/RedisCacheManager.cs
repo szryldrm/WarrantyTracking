@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ServiceStack.Redis;
+using WarrantyTracking.Core.Settings;
 
 namespace WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis
 {
@@ -27,20 +28,10 @@ namespace WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis
             }
         }
 
-
-        public RedisCacheManager(IDistributedCache distributedCache)
+        public RedisCacheManager(IDistributedCache distributedCache, IRedisSettings redisSettings)
         {
             _distributedCache = ServiceTool.ServiceProvider.GetService<IDistributedCache>();
-            var configuration = (IConfiguration)ServiceTool.ServiceProvider.GetService(typeof(IConfiguration));
-
-            var redisConnectionInfo = configuration.GetValue<string>("RedisHostInformation").Split(':');
-
-            if (redisConnectionInfo.Length != 2 || int.TryParse(redisConnectionInfo[1], out var port) == false || port == 0)
-            {
-                throw new NullReferenceException();
-            }
-
-            _redisEndpoint = new RedisEndpoint(redisConnectionInfo[0], port);
+            _redisEndpoint = new RedisEndpoint(redisSettings.RedisHostIP, Convert.ToInt32(redisSettings.RedisPort));
         }
 
         public T Get<T>(string key)

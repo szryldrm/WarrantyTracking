@@ -15,6 +15,7 @@ namespace WarrantyTracking.Business.DependencyResolvers.Autofac
         {
             builder.RegisterType<WarrantyManager>().As<IWarrantyService>();
             builder.RegisterType<EfWarrantyDal>().As<IWarrantyDal>();
+            builder.RegisterType<EfUserDal>().As<IUserDal>();
 
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             builder.RegisterAssemblyTypes(assembly).AsImplementedInterfaces()

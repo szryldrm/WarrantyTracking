@@ -35,9 +35,18 @@ namespace WarrantyTracking.WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
+            services.Configure<RedisSettings>(Configuration.GetSection("RedisSettings"));
 
             services.AddSingleton<IMongoDbSettings>(serviceProvider =>
                 serviceProvider.GetRequiredService<IOptions<MongoDbSettings>>().Value);
+            services.AddSingleton<IRedisSettings>(serviceProvider =>
+                serviceProvider.GetRequiredService<IOptions<RedisSettings>>().Value);
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetSection("RedisSettings").GetSection("RedisHostIP").Value 
+                + ":" + Configuration.GetSection("RedisSettings").GetSection("RedisPort").Value;
+            });
 
             services.AddControllers();
 
@@ -46,7 +55,7 @@ namespace WarrantyTracking.WebAPI
 
             services.AddDependencyResolvers(new ICoreModule[]
             {
-                new CoreModule(),
+                new CoreModule(Configuration),
             });
         }
 
