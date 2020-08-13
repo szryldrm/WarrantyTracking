@@ -31,17 +31,6 @@ namespace WarrantyTracking.WebAPI.Controllers
             }
             return BadRequest(result.Message);
         }
-        
-        // [HttpGet("getactivelist")]
-        // public IActionResult GetActiveList()
-        // {
-        //     var result = _warrantyService.GetActiveList();
-        //     if (result.Success)
-        //     {
-        //         return Ok(JsonConvert.SerializeObject(result.Data));
-        //     }
-        //     return BadRequest(result.Message);
-        //}
 
         [HttpPost("add")]
         public IActionResult Add([FromBody]Warranty warranty)
@@ -130,5 +119,16 @@ namespace WarrantyTracking.WebAPI.Controllers
             }
             return BadRequest(result.Message);
         }
+
+        // [HttpGet("getactivelist")]
+        // public IActionResult GetActiveList()
+        // {
+        //     var result = _warrantyService.GetActiveList();
+        //     if (result.Success)
+        //     {
+        //         return Ok(JsonConvert.SerializeObject(result.Data));
+        //     }
+        //     return BadRequest(result.Message);
+        //}
     }
 }

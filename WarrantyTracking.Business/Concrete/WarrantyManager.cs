@@ -88,20 +88,6 @@ namespace WarrantyTracking.Business.Concrete
             return new SuccessDataResult<Warranty>(value);
         }
 
-        // public IDataResult<List<Warranty>> GetActiveList()
-        // {
-        //     try
-        //     {
-        //         var filter = Builders<Warranty>.Filter.Eq("Details.IsActive", "true");
-        //         var projection = Builders<Warranty>.Projection.Include("Details.$");
-        //         return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetProjectionList(projection, filter).ToList());
-        //     }
-        //     catch (Exception e)
-        //     {
-        //         return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
-        //     }
-        // }
-
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
         [LogAspect(typeof(DatabaseLogger), Priority = 3)]
@@ -111,7 +97,9 @@ namespace WarrantyTracking.Business.Concrete
             //To Get Specific Number Of List - Using .Take(10)
             //return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetList().OrderByDescending(x=>x.UpdatedDate).Take(5).ToList());
 
-            return value != null ? new SuccessDataResult<List<Warranty>>(value) : new SuccessDataResult<List<Warranty>>(Messages.ListNotFound);
+            return value != null 
+                ? (IDataResult<List<Warranty>>)new SuccessDataResult<List<Warranty>>(value) 
+                : new ErrorDataResult<List<Warranty>>(Messages.ListNotFound);
         }
 
         [TransactionScopeAspect(Priority = 1)]
@@ -171,12 +159,9 @@ namespace WarrantyTracking.Business.Concrete
 
             var result = _warrantyDal.UpdateOne(filter, update, options);
 
-            if (result)
-            {
-                return new SuccessResult(Messages.RecordIsDeleted);
-            }
-
-            return new ErrorResult(Messages.RecordIsNotDeleted);
+            return result 
+                ? new SuccessResult(Messages.RecordIsDeleted) 
+                : (IResult)new ErrorResult(Messages.RecordIsNotDeleted);
         }
 
         [TransactionScopeAspect(Priority = 1)]
@@ -198,13 +183,23 @@ namespace WarrantyTracking.Business.Concrete
             var update = Builders<Warranty>.Update.Push("Details", detail)
                 .Set("UpdatedDate", DateTime.Now.ToShortDateString());
 
-            if (_warrantyDal.UpdateOne(filter, update))
-            {
-                return new SuccessResult(Messages.DetailIsAdded);
-            }
-
-            return new ErrorResult(Messages.DetailIsNotAddedError);
-
+            return _warrantyDal.UpdateOne(filter, update)
+                ? new SuccessResult(Messages.DetailIsAdded)
+                : (IResult)new ErrorResult(Messages.DetailIsNotAddedError);
         }
+
+        // public IDataResult<List<Warranty>> GetActiveList()
+        // {
+        //     try
+        //     {
+        //         var filter = Builders<Warranty>.Filter.Eq("Details.IsActive", "true");
+        //         var projection = Builders<Warranty>.Projection.Include("Details.$");
+        //         return new SuccessDataResult<List<Warranty>>(_warrantyDal.GetProjectionList(projection, filter).ToList());
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         return new ErrorDataResult<List<Warranty>>("Bir Hata Oluştu! Hata İçeriği: " + e.Message);
+        //     }
+        // }
     }
 }

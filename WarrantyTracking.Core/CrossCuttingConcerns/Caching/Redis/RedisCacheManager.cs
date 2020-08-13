@@ -28,7 +28,7 @@ namespace WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis
             }
         }
 
-        public RedisCacheManager(IDistributedCache distributedCache, IRedisSettings redisSettings)
+        public RedisCacheManager(IRedisSettings redisSettings)
         {
             _distributedCache = ServiceTool.ServiceProvider.GetService<IDistributedCache>();
             _redisEndpoint = new RedisEndpoint(redisSettings.RedisHostIP, Convert.ToInt32(redisSettings.RedisPort));

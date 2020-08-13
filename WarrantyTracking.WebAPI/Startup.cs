@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,9 +17,11 @@ using WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis;
 using WarrantyTracking.Core.DependencyResolvers;
 using WarrantyTracking.Core.Extensions;
 using WarrantyTracking.Core.Settings;
+using WarrantyTracking.Core.Settings.MSSQLDbSettings;
 using WarrantyTracking.Core.Utilities.IoC;
 using WarrantyTracking.DataAccess.Abstract;
 using WarrantyTracking.DataAccess.Concrete;
+using WarrantyTracking.DataAccess.Concrete.EntityFramework.Contexts;
 
 namespace WarrantyTracking.WebAPI
 {
@@ -34,13 +37,18 @@ namespace WarrantyTracking.WebAPI
         public IConfiguration Configuration { get; }
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddDbContext<WarrantyTrackingSqlContext>(
+            //    options => options.UseSqlServer(Configuration.GetSection("MSSQLDbSettings").GetSection("ConnectionString").Value));
             services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
             services.Configure<RedisSettings>(Configuration.GetSection("RedisSettings"));
+            //services.Configure<MSSQLDbSettings>(Configuration.GetSection("MSSQLDbSettings"));
 
             services.AddSingleton<IMongoDbSettings>(serviceProvider =>
                 serviceProvider.GetRequiredService<IOptions<MongoDbSettings>>().Value);
             services.AddSingleton<IRedisSettings>(serviceProvider =>
                 serviceProvider.GetRequiredService<IOptions<RedisSettings>>().Value);
+            //services.AddSingleton<IMSSQLDbSettings>(serviceProvider =>
+                //serviceProvider.GetRequiredService<IOptions<MSSQLDbSettings>>().Value);
 
             services.AddStackExchangeRedisCache(options =>
             {
