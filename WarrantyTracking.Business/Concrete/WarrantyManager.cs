@@ -1,19 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using WarrantyTracking.Business.Abstract;
 using WarrantyTracking.Core.Utilities.Results;
 using WarrantyTracking.DataAccess.Abstract;
 using WarrantyTracking.Entities.Concrete;
-using MongoDB.Bson.Serialization;
 using WarrantyTracking.Business.Contants;
 using WarrantyTracking.Core.Aspects.Autofac.Caching;
 using WarrantyTracking.Core.Aspects.Autofac.Logging;
@@ -27,23 +22,20 @@ namespace WarrantyTracking.Business.Concrete
     public class WarrantyManager : IWarrantyService
     {
         private readonly IWarrantyDal _warrantyDal;
-        private readonly ICacheManager _cacheManager;
 
-        public WarrantyManager(IWarrantyDal warrantyDal, ICacheManager cacheManager)
+        public WarrantyManager(IWarrantyDal warrantyDal)
         {
             _warrantyDal = warrantyDal;
-            _cacheManager = cacheManager;
         }
 
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
         [PerformansAspect(typeof(DatabaseLogger), 1, Priority = 3)]
         [LogAspect(typeof(DatabaseLogger))]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
         public IDataResult<Warranty> Get(string id)
         {
             var value = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
-
-            Thread.Sleep(10000);
 
             return value != null
                 ? (IDataResult<Warranty>) new SuccessDataResult<Warranty>(value)
@@ -53,6 +45,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
         [LogAspect(typeof(DatabaseLogger), Priority = 3)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
         public IDataResult<Warranty> GetByLicensePlate(string licensePlate)
         {
             var value = _warrantyDal.Get(Builders<Warranty>.Filter.Regex("LicensePlate",
@@ -66,6 +59,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
         [LogAspect(typeof(DatabaseLogger), Priority = 3)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
         public IDataResult<List<Warranty>> GetList()
         {
             var value = _warrantyDal.GetList();
@@ -78,6 +72,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
         [LogAspect(typeof(DatabaseLogger), Priority = 3)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
         public IDataResult<Warranty> GetActive(string id)
         {
             Warranty value = _warrantyDal.Get(Builders<Warranty>.Filter.Eq("_id", new ObjectId(id)));
@@ -91,6 +86,7 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
         [LogAspect(typeof(DatabaseLogger), Priority = 3)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
         public IDataResult<List<Warranty>> GetLatestList()
         {
             var value = _warrantyDal.GetList().OrderByDescending(x => x.UpdatedDate).ToList();
@@ -105,7 +101,8 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
-        //[CacheFlushAspect(Priority = 4)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
+        //[CacheFlushAspect(Priority = 5)]
         public IResult Add(Warranty warranty)
         {
             return _warrantyDal.Add(warranty)
@@ -116,7 +113,8 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
-        //[CacheFlushAspect(Priority = 4)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
+        //[CacheFlushAspect(Priority = 5)]
         public IResult Delete(string id)
         {
             return _warrantyDal.Delete(id)
@@ -127,7 +125,8 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
-        //[CacheFlushAspect(Priority = 4)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
+        //[CacheFlushAspect(Priority = 5)]
         public IResult Update(Warranty warranty)
         {
             return _warrantyDal.Update(warranty)
@@ -138,7 +137,8 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
-        //[CacheFlushAspect(Priority = 4)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
+        //[CacheFlushAspect(Priority = 5)]
         public IResult DeleteDetail(string serialNumber)
         {
             var filter = Builders<Warranty>.Filter.Eq("Details.SerialNumber", serialNumber);
@@ -167,7 +167,8 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheRemoveAspect("*IWarrantyService.Get*", Priority = 3)]
-        //[CacheFlushAspect(Priority = 4)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
+        //[CacheFlushAspect(Priority = 5)]
         public IResult AddDetail(string id, Detail detail)
         {
             var filter = Builders<Warranty>.Filter.Eq("_id", new ObjectId(id));

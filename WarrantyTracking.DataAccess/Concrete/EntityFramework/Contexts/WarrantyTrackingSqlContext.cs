@@ -15,7 +15,7 @@ namespace WarrantyTracking.DataAccess.Concrete.EntityFramework.Contexts
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //optionsBuilder.UseSqlServer(connectionString: _mssqlDbSettings.ConnectionString);
-            optionsBuilder.UseSqlServer(connectionString: @"server=78.142.208.131\MSSQLSERVER2016;Initial Catalog=warrantytracking_db;User ID=warrantytracking_user;Password=sezer123");
+            optionsBuilder.UseSqlServer(connectionString: @"server=185.162.146.207;Initial Catalog=warrantytracking_db;User ID=sa;Password=Sy123456789");
         }
         public DbSet<User> Users { get; set; }
     }

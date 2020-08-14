@@ -1,0 +1,291 @@
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T06:24:03.2574599+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T06:32:00.3310156+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.Get",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T06:34:33.9147177+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T06:34:42.6543513+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T06:37:22.9407604+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T06:40:12.3353974+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T06:50:05.6295852+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T07:09:47.7739194+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T07:10:06.5724338+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T07:10:14.367544+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T10:15:02.4724902+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T07:16:20.9180029+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetActive",
+    "LogParameters": [
+      {
+        "Name": "id",
+        "Value": "5ebc05ababeb345c446801b5",
+        "Type": "String"
+      }
+    ],
+    "DateTime": "2020-08-14T07:16:48.2702087+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T07:16:54.699238+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IUserService.GetAll",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T07:18:21.2681771+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IUserService.GetAll",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T07:18:52.2839054+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IUserService.GetAll",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T07:22:07.501064+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T07:22:26.3271076+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T07:23:57.9001492+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T10:54:09.9595807+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T10:54:41.8056027+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T10:55:44.9686044+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T10:58:30.6352662+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T11:07:37.2311851+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T11:07:57.8223382+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T08:20:50.2443335+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T08:21:03.8104701+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T11:22:26.4757835+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T11:23:35.4319252+03:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T08:24:03.4459775+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T08:26:06.90565+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T08:26:50.9496789+00:00"
+  }
+}
+{
+  "Message": {
+    "MethodName": "WarrantyTracking.Business.Abstract.IWarrantyService.GetList",
+    "LogParameters": [],
+    "DateTime": "2020-08-14T08:27:54.5302728+00:00"
+  }
+}
