@@ -2,7 +2,16 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <UserSecretsId>da829c73-44cf-47b8-ab9c-d70f96ec900a</UserSecretsId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="C\**" />
+      <Content Remove="C\**" />
+      <EmbeddedResource Remove="C\**" />
+      <None Remove="C\**" />
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\WarrantyTracking.Business\WarrantyTracking.Business.csproj" />
@@ -11,9 +20,11 @@
 
     <ItemGroup>
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+      <PackageReference Include="log4mongo-netcore" Version="3.2.0" />
       <PackageReference Include="MicroKnights.Log4NetAdoNetAppender" Version="2.2.0" />
       <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.1.6" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.6" />
+      <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     </ItemGroup>
 

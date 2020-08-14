@@ -35,11 +35,17 @@ namespace WarrantyTracking.Business.Concrete
         [TransactionScopeAspect(Priority = 1)]
         [LogAspect(typeof(DatabaseLogger), Priority = 2)]
         [CacheAspect(60, Priority = 3)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
+
         public IDataResult<List<User>> GetAll()
         {
             return new SuccessDataResult<List<User>>((_userDal.GetList()).ToList());
         }
 
+        [TransactionScopeAspect(Priority = 1)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 2)]
+        [CacheAspect(60, Priority = 3)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
         public User GetById(int id)
         {
             return _userDal.Get(p => p.Id == id);
