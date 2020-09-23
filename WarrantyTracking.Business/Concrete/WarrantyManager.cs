@@ -44,8 +44,8 @@ namespace WarrantyTracking.Business.Concrete
 
         [TransactionScopeAspect(Priority = 1)]
         [CacheAspect(duration: 60, Priority = 2)]
-        // [LogAspect(typeof(DatabaseLogger), Priority = 3)]
-        // [LogAspect(typeof(FileLogger), Priority = 4)]
+        [LogAspect(typeof(DatabaseLogger), Priority = 3)]
+        [LogAspect(typeof(FileLogger), Priority = 4)]
         public IDataResult<Warranty> GetByLicensePlate(string licensePlate)
         {
             var value = _warrantyDal.Get(Builders<Warranty>.Filter.Regex("LicensePlate",
