@@ -1,7 +1,5 @@
 using WarrantyTracking.Entities.Concrete;
 using Microsoft.EntityFrameworkCore;
-using Castle.Core.Configuration;
-using WarrantyTracking.Core.Settings.MSSQLDbSettings;
 
 namespace WarrantyTracking.DataAccess.Concrete.EntityFramework.Contexts
 {

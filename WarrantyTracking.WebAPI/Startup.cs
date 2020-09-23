@@ -17,7 +17,6 @@ using WarrantyTracking.Core.CrossCuttingConcerns.Caching.Redis;
 using WarrantyTracking.Core.DependencyResolvers;
 using WarrantyTracking.Core.Extensions;
 using WarrantyTracking.Core.Settings;
-using WarrantyTracking.Core.Settings.MSSQLDbSettings;
 using WarrantyTracking.Core.Utilities.IoC;
 using WarrantyTracking.DataAccess.Abstract;
 using WarrantyTracking.DataAccess.Concrete;
